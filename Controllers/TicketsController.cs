@@ -134,7 +134,7 @@ namespace BWBugTracker.Controllers
             {
                 try
                 {
-                    ticket.Created = DateTime.SpecifyKind(ticket.Created, DateTimeKind.Utc);
+                    ticket.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
                     ticket.Updated = DataUtility.GetPostGresDate(DateTime.UtcNow);
 
                     _context.Update(ticket);
