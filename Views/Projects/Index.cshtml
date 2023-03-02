@@ -1,5 +1,10 @@
 ﻿@model IEnumerable<BWBugTracker.Models.Project>
 
+@using BWBugTracker.Services.Interfaces
+@using BWBugTracker.Models.Enums
+
+@inject IBTFileService _BTFileService
+
 @{
     ViewData["Title"] = "Index";
 }
@@ -29,9 +34,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ImageFileData)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageFileType)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Archived)
@@ -64,10 +66,7 @@
                 @Html.DisplayFor(modelItem => item.EndDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ImageFileData)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageFileType)
+                <img class="img-fluid border rounded-3 m-2" style="max-height: 250px;" src="@_BTFileService.ConvertByteArrayToFile(item.ImageFileData!, item.ImageFileType!, (int)DefaultImage.ProjectImage)" alt="">
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Archived)

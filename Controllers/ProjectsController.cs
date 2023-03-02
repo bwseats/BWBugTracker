@@ -71,13 +71,25 @@ namespace BWBugTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageFormFile,Archived")] Project project)
+        public async Task<IActionResult> Create([Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageFormFile,ImageFileData,ImageFileType,,Archived")] Project project)
         {
+            ModelState.Remove("CompanyId");
+
             if (ModelState.IsValid)
             {
+                BTUser? btUser = await _userManager.GetUserAsync(User);
+
+                project.CompanyId = btUser!.CompanyId;
+
                 project.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
                 project.StartDate = DataUtility.GetPostGresDate(project.StartDate);
                 project.EndDate = DataUtility.GetPostGresDate(project.EndDate);
+
+                if (project.ImageFormFile != null)
+                {
+                    project.ImageFileData = await _btFileService.ConvertFileToByteArrayAsync(project.ImageFormFile);
+                    project.ImageFileType = project.ImageFormFile.ContentType;
+                }
 
                 _context.Add(project);
                 await _context.SaveChangesAsync();
@@ -111,20 +123,32 @@ namespace BWBugTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageFileData,ImageFileType,Archived")] Project project)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageFormFile,ImageFileData,ImageFileType,Archived")] Project project)
         {
             if (id != project.Id)
             {
                 return NotFound();
             }
 
+            ModelState.Remove("CompanyId");
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    project.Created = DateTime.SpecifyKind(project.Created, DateTimeKind.Utc);
+                    BTUser? btUser = await _userManager.GetUserAsync(User);
+
+                    project.CompanyId = btUser!.CompanyId;
+
+                    project.Created = DataUtility.GetPostGresDate(project.Created);
                     project.StartDate = DataUtility.GetPostGresDate(project.StartDate);
                     project.EndDate = DataUtility.GetPostGresDate(project.EndDate);
+
+                    if (project.ImageFormFile != null)
+                    {
+                        project.ImageFileData = await _btFileService.ConvertFileToByteArrayAsync(project.ImageFormFile);
+                        project.ImageFileType = project.ImageFormFile.ContentType;
+                    }
 
                     _context.Update(project);
                     await _context.SaveChangesAsync();
