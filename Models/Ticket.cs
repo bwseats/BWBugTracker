@@ -18,7 +18,7 @@ namespace BWBugTracker.Models
         [DataType(DataType.Date)]
         public DateTime? Updated { get; set; }
 
-        public bool IsArchived { get; set; }
+        public bool Archived { get; set; }
 
         public bool ArchivedByProject { get; set; }
 

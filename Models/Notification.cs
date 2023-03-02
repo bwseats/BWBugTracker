@@ -20,10 +20,10 @@ namespace BWBugTracker.Models
         public DateTime Created { get; set; }
 
         [Required]
-        public virtual string? SenderId { get; set; }
+        public string? SenderId { get; set; }
         
         [Required]
-        public virtual string? RecipientId { get; set; }
+        public string? RecipientId { get; set; }
 
         public int NotificationTypeId { get; set; }
 
@@ -32,15 +32,15 @@ namespace BWBugTracker.Models
 
         // nav props
 
-        public NotificationType? NotificationType { get; set; }
+        public virtual NotificationType? NotificationType { get; set; }
 
-        public Ticket? Ticket { get; set; }
+        public virtual Ticket? Ticket { get; set; }
 
-        public Project? Project { get; set; }
+        public virtual Project? Project { get; set; }
         
-        public BTUser? Sender { get; set; }
+        public virtual BTUser? Sender { get; set; }
         
-        public BTUser? Recipient { get; set; }
+        public virtual BTUser? Recipient { get; set; }
 
     }
 }

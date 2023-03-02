@@ -43,13 +43,13 @@ namespace BWBugTracker.Models
 
         // nav props
 
-        public Company? Company { get; set; }
+        public virtual Company? Company { get; set; }
 
-        public Project? Project { get; set; }
+        public virtual Project? Project { get; set; }
 
-        public BTUser? Invitor { get; set; }
+        public virtual BTUser? Invitor { get; set; }
 
-        public BTUser? Invitee { get; set; }
+        public virtual BTUser? Invitee { get; set; }
 
     }
 }

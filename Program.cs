@@ -1,6 +1,7 @@
 using BWBugTracker.Data;
 using BWBugTracker.Models;
-using ContactPro.Data;
+using BWBugTracker.Services;
+using BWBugTracker.Services.Interfaces;
 using MailKit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -16,10 +17,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<BTUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentity<BTUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddDefaultUI()
+    .AddDefaultTokenProviders()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 // custom services
+builder.Services.AddScoped<IBTFileService, BTFileService>();
 
 
 

@@ -179,7 +179,7 @@ namespace BWBugTracker.Data.Migrations
                     ProjectPriorityId = table.Column<int>(type: "integer", nullable: false),
                     ImageFileData = table.Column<byte[]>(type: "bytea", nullable: true),
                     ImageFileType = table.Column<string>(type: "text", nullable: true),
-                    IsArchived = table.Column<bool>(type: "boolean", nullable: false)
+                    Archived = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -223,8 +223,8 @@ namespace BWBugTracker.Data.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    ProviderKey = table.Column<string>(type: "text", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
                     UserId = table.Column<string>(type: "text", nullable: false)
                 },
@@ -268,8 +268,8 @@ namespace BWBugTracker.Data.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "text", nullable: false),
-                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -321,8 +321,8 @@ namespace BWBugTracker.Data.Migrations
                     InvitorId = table.Column<string>(type: "text", nullable: false),
                     InviteeId = table.Column<string>(type: "text", nullable: true),
                     InviteeEmail = table.Column<string>(type: "text", nullable: false),
-                    InviteeFirstName = table.Column<string>(type: "text", nullable: false),
-                    InviteeLastName = table.Column<string>(type: "text", nullable: false),
+                    InviteeFirstName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    InviteeLastName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Message = table.Column<string>(type: "text", nullable: true),
                     IsValid = table.Column<bool>(type: "boolean", nullable: false)
                 },
@@ -364,7 +364,7 @@ namespace BWBugTracker.Data.Migrations
                     Description = table.Column<string>(type: "text", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    IsArchived = table.Column<bool>(type: "boolean", nullable: false),
+                    Archived = table.Column<bool>(type: "boolean", nullable: false),
                     ArchivedByProject = table.Column<bool>(type: "boolean", nullable: false),
                     ProjectId = table.Column<int>(type: "integer", nullable: false),
                     TicketTypeId = table.Column<int>(type: "integer", nullable: false),

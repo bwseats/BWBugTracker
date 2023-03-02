@@ -33,7 +33,7 @@ namespace BWBugTracker.Models
 
         public string? ImageFileType { get; set; }
 
-        public bool IsArchived { get; set; }
+        public bool Archived { get; set; }
 
 
         // nav props
