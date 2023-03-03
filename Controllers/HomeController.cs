@@ -23,6 +23,11 @@ namespace BWBugTracker.Controllers
             return View();
         }
 
+        public IActionResult PortoIndex()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

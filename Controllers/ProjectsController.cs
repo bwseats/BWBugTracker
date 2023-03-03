@@ -58,6 +58,11 @@ namespace BWBugTracker.Controllers
             return View(project);
         }
 
+        public IActionResult PortoDetails()
+        {
+            return View();
+        }
+
         // GET: Projects/Create
         public IActionResult Create()
         {
