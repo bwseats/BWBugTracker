@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BWBugTracker.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class _001_Initial : Migration
+    public partial class _001_Initital : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

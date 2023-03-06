@@ -9,33 +9,43 @@ using BWBugTracker.Data;
 using BWBugTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using BWBugTracker.Services.Interfaces;
+using Org.BouncyCastle.Bcpg;
+using Microsoft.AspNetCore.Authorization;
+using BWBugTracker.Extensions;
+using X.PagedList;
 
 namespace BWBugTracker.Controllers
 {
+    [Authorize]
     public class ProjectsController : Controller
     {
+        private readonly ApplicationDbContext _context;
         private readonly UserManager<BTUser> _userManager;
         private readonly IBTFileService _btFileService;
-        private readonly ApplicationDbContext _context;
+        private readonly IBTProjectService _btProjectService;
 
-        public ProjectsController(UserManager<BTUser> userManager,
+        public ProjectsController(ApplicationDbContext context,
+                                  UserManager<BTUser> userManager,
                                   IBTFileService btFileService,
-                                  ApplicationDbContext context)
+                                  IBTProjectService btProjectService)
         {
+            _context = context;
             _userManager = userManager;
             _btFileService = btFileService;
-            _context = context;
+            _btProjectService = btProjectService;
         }
 
         // GET: Projects
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pageNum)
         {
-            IEnumerable<Project> projects = await _context.Projects
-                                                          .Where(t => t.Archived == false)
-                                                          .ToListAsync();
+            int pageSize = 10;
+            int page = pageNum ?? 1;
 
-            var applicationDbContext = _context.Projects.Include(p => p.Company).Include(p => p.ProjectPriority);
-            return View(await applicationDbContext.ToListAsync());
+            int companyId = User.Identity!.GetCompanyId();
+
+            IPagedList<Project> projects = (await _btProjectService.GetProjectsAsync(companyId)).ToPagedList(page, pageSize);
+
+            return View(projects);
         }
 
         // GET: Projects/Details/5
@@ -46,10 +56,10 @@ namespace BWBugTracker.Controllers
                 return NotFound();
             }
 
-            var project = await _context.Projects
-                .Include(p => p.Company)
-                .Include(p => p.ProjectPriority)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            int companyId = User.Identity!.GetCompanyId();
+
+            Project? project = await _btProjectService.GetProjectAsync(companyId, id.Value);
+
             if (project == null)
             {
                 return NotFound();
@@ -58,16 +68,24 @@ namespace BWBugTracker.Controllers
             return View(project);
         }
 
+        public async Task<IActionResult> MyProjects()
+        {
+            return View();
+        }
+
         public IActionResult PortoDetails()
         {
             return View();
         }
 
         // GET: Projects/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
-            ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Id");
+
+            IEnumerable<ProjectPriority> priorities = await _btProjectService.GetProjectPrioritiesAsync();
+
+            ViewData["ProjectPriorityId"] = new SelectList(priorities, "Id", "Name");
+
             return View();
         }
 
@@ -76,7 +94,7 @@ namespace BWBugTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageFormFile,ImageFileData,ImageFileType,,Archived")] Project project)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageFormFile,ImageFileData,ImageFileType,Archived,CompanyId")] Project project)
         {
             ModelState.Remove("CompanyId");
 
@@ -135,17 +153,11 @@ namespace BWBugTracker.Controllers
                 return NotFound();
             }
 
-            ModelState.Remove("CompanyId");
-
             if (ModelState.IsValid)
             {
                 try
                 {
-                    BTUser? btUser = await _userManager.GetUserAsync(User);
-
-                    project.CompanyId = btUser!.CompanyId;
-
-                    project.Created = DataUtility.GetPostGresDate(project.Created);
+                    project.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
                     project.StartDate = DataUtility.GetPostGresDate(project.StartDate);
                     project.EndDate = DataUtility.GetPostGresDate(project.EndDate);
 

@@ -1,4 +1,5 @@
 using BWBugTracker.Data;
+using BWBugTracker.Extensions;
 using BWBugTracker.Models;
 using BWBugTracker.Services;
 using BWBugTracker.Services.Interfaces;
@@ -18,12 +19,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentity<BTUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddDefaultUI()
-    .AddDefaultTokenProviders()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddClaimsPrincipalFactory<BTUserClaimsPrincipalFactory>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
 
 // custom services
 builder.Services.AddScoped<IBTFileService, BTFileService>();
+
+builder.Services.AddScoped<IBTTicketService, BTTicketService>();
+
+builder.Services.AddScoped<IBTProjectService, BTProjectService>();
 
 
 
