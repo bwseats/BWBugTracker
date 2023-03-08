@@ -22,7 +22,7 @@ namespace BWBugTracker.Controllers
         // GET: TicketHistories
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.TicketHistories.Include(t => t.Ticket).Include(t => t.User);
+            var applicationDbContext = _context.TicketHistories.Include(t => t.Ticket).Include(t => t.BTUser);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -36,7 +36,7 @@ namespace BWBugTracker.Controllers
 
             var ticketHistory = await _context.TicketHistories
                 .Include(t => t.Ticket)
-                .Include(t => t.User)
+                .Include(t => t.BTUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (ticketHistory == null)
             {
@@ -137,7 +137,7 @@ namespace BWBugTracker.Controllers
 
             var ticketHistory = await _context.TicketHistories
                 .Include(t => t.Ticket)
-                .Include(t => t.User)
+                .Include(t => t.BTUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (ticketHistory == null)
             {

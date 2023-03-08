@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BWBugTracker.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230304224820_001_Initital")]
-    partial class _001_Initital
+    [Migration("20230307025142_001_Initial")]
+    partial class _001_Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -457,6 +457,9 @@ namespace BWBugTracker.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("BTUserId")
+                        .HasColumnType("text");
+
                     b.Property<string>("Comment")
                         .IsRequired()
                         .HasColumnType("text");
@@ -467,14 +470,11 @@ namespace BWBugTracker.Data.Migrations
                     b.Property<int>("TicketId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("TicketId");
+                    b.HasIndex("BTUserId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("TicketId");
 
                     b.ToTable("TicketComments");
                 });
@@ -486,6 +486,9 @@ namespace BWBugTracker.Data.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BTUserId")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
@@ -511,9 +514,9 @@ namespace BWBugTracker.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TicketId");
+                    b.HasIndex("BTUserId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("TicketId");
 
                     b.ToTable("TicketHistories");
                 });
@@ -889,38 +892,36 @@ namespace BWBugTracker.Data.Migrations
 
             modelBuilder.Entity("BWBugTracker.Models.TicketComment", b =>
                 {
+                    b.HasOne("BWBugTracker.Models.BTUser", "BTUser")
+                        .WithMany()
+                        .HasForeignKey("BTUserId");
+
                     b.HasOne("BWBugTracker.Models.Ticket", "Ticket")
                         .WithMany("Comments")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BWBugTracker.Models.BTUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                    b.Navigation("BTUser");
 
                     b.Navigation("Ticket");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BWBugTracker.Models.TicketHistory", b =>
                 {
+                    b.HasOne("BWBugTracker.Models.BTUser", "BTUser")
+                        .WithMany()
+                        .HasForeignKey("BTUserId");
+
                     b.HasOne("BWBugTracker.Models.Ticket", "Ticket")
                         .WithMany("History")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BWBugTracker.Models.BTUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("BTUser");
 
                     b.Navigation("Ticket");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

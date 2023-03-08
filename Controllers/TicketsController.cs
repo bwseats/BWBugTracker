@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using BWBugTracker.Data;
 using BWBugTracker.Models;
 using Microsoft.AspNetCore.Identity;
+using BWBugTracker.Services;
+using BWBugTracker.Services.Interfaces;
 
 namespace BWBugTracker.Controllers
 {
@@ -15,25 +17,41 @@ namespace BWBugTracker.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<BTUser> _userManager;
+        private readonly IBTFileService _btFileService;
+        private readonly IBTTicketService _btTicketService;
 
-        public TicketsController(ApplicationDbContext context, UserManager<BTUser> userManager)
+        public TicketsController(ApplicationDbContext context,
+                                 UserManager<BTUser> userManager,
+                                 IBTFileService btFileService,
+                                 IBTTicketService btTicketService)
         {
             _context = context;
             _userManager = userManager;
+            _btFileService = btFileService;
+            _btTicketService = btTicketService;
         }
 
         // GET: Tickets
         public async Task<IActionResult> Index()
         {
-            IEnumerable<Ticket> tickets = await _context.Tickets
-                                                        .Where(t => t.Archived == false)
-                                                        .ToListAsync();
+            var applicationDbContext = _context.Tickets.Where(p => p.Archived == false)
+                                                       .Include(t => t.DeveloperUser)
+                                                       .Include(t => t.Project)
+                                                       .Include(t => t.SubmitterUser)
+                                                       .Include(t => t.TicketPriority)
+                                                       .Include(t => t.TicketStatus)
+                                                       .Include(t => t.TicketType);
 
-            return View(tickets);
+            return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Tickets/Details/5
-        public async Task<IActionResult> Details(int? id)
+		public IActionResult PortoDetails()
+		{
+			return View();
+		}
+
+		// GET: Tickets/Details/5
+		public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Tickets == null)
             {
@@ -41,13 +59,14 @@ namespace BWBugTracker.Controllers
             }
 
             var ticket = await _context.Tickets
-                .Include(t => t.DeveloperUser)
-                .Include(t => t.Project)
-                .Include(t => t.SubmitterUser)
-                .Include(t => t.TicketPriority)
-                .Include(t => t.TicketStatus)
-                .Include(t => t.TicketType)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                                       .Include(t => t.DeveloperUser)
+                                       .Include(t => t.Project)
+                                       .Include(t => t.SubmitterUser)
+                                       .Include(t => t.Comments)
+                                       .Include(t => t.TicketPriority)
+                                       .Include(t => t.TicketStatus)
+                                       .Include(t => t.TicketType)
+                                       .FirstOrDefaultAsync(m => m.Id == id);
 
             if (ticket == null)
             {
@@ -58,14 +77,16 @@ namespace BWBugTracker.Controllers
         }
 
         // GET: Tickets/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Id");
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description");
-            ViewData["SubmitterUserId"] = new SelectList(_context.Users, "Id", "Id");
-            ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Id");
-            ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Id");
-            ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Id");
+            BTUser? btUser = await _userManager.GetUserAsync(User);
+
+            IEnumerable<Project> projects = _context.Projects.Where(p => p.CompanyId == btUser!.CompanyId);
+
+            ViewData["ProjectId"] = new SelectList(projects, "Id", "Name");
+            ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name");
+            ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Name");
+            ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Name");
             return View();
         }
 
@@ -76,18 +97,25 @@ namespace BWBugTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Title,Description,Created,Updated,Archived,ArchivedByProject,ProjectId,TicketTypeId,TicketStatusId,TicketPriorityId,DeveloperUserId,SubmitterUserId")] Ticket ticket)
         {
+            ModelState.Remove("SubmitterUserId");
+
             if (ModelState.IsValid)
             {
+                BTUser? btUser = await _userManager.GetUserAsync(User);
+
+                ticket.SubmitterUserId = btUser!.Id;
+
                 ticket.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
                 ticket.Updated = DataUtility.GetPostGresDate(DateTime.UtcNow);
+
+                ticket.TicketStatusId = 1;
 
                 _context.Add(ticket);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.DeveloperUserId);
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description", ticket.ProjectId);
-            ViewData["SubmitterUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.SubmitterUserId);
             ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Id", ticket.TicketPriorityId);
             ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Id", ticket.TicketStatusId);
             ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Id", ticket.TicketTypeId);
@@ -108,12 +136,11 @@ namespace BWBugTracker.Controllers
             {
                 return NotFound();
             }
-            ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.DeveloperUserId);
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description", ticket.ProjectId);
-            ViewData["SubmitterUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.SubmitterUserId);
-            ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Id", ticket.TicketPriorityId);
-            ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Id", ticket.TicketStatusId);
-            ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Id", ticket.TicketTypeId);
+
+            ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "FullName", ticket.DeveloperUserId);
+            ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name", ticket.TicketPriorityId);
+            ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Name", ticket.TicketStatusId);
+            ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Name", ticket.TicketTypeId);
 
             return View(ticket);
         }
@@ -134,7 +161,7 @@ namespace BWBugTracker.Controllers
             {
                 try
                 {
-                    ticket.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                    ticket.Created = DataUtility.GetPostGresDate(ticket.Created);
                     ticket.Updated = DataUtility.GetPostGresDate(DateTime.UtcNow);
 
                     _context.Update(ticket);
@@ -153,12 +180,11 @@ namespace BWBugTracker.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.DeveloperUserId);
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description", ticket.ProjectId);
-            ViewData["SubmitterUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.SubmitterUserId);
-            ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Id", ticket.TicketPriorityId);
-            ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Id", ticket.TicketStatusId);
-            ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Id", ticket.TicketTypeId);
+
+            ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Name", ticket.DeveloperUserId);
+            ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name", ticket.TicketPriorityId);
+            ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Name", ticket.TicketStatusId);
+            ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Name", ticket.TicketTypeId);
 
             return View(ticket);
         }
@@ -199,11 +225,63 @@ namespace BWBugTracker.Controllers
             var ticket = await _context.Tickets.FindAsync(id);
             if (ticket != null)
             {
-                _context.Tickets.Remove(ticket);
+                ticket.Archived = true;
             }
             
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTicketComment([Bind("Id,TicketId,BTUserId,Comment,Created")] TicketComment ticketComment)
+        {
+            ModelState.Remove("BTUserId");
+
+            if (ModelState.IsValid)
+            {
+                BTUser? btUser = await _userManager.GetUserAsync(User);
+
+                int ticketId = ticketComment.TicketId;
+
+                ticketComment.BTUserId = btUser!.Id;
+
+                ticketComment.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
+
+                _context.Add(ticketComment);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Details", new { id = ticketId });
+            }
+
+            return RedirectToAction(nameof(Details));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTicketAttachment([Bind("Id,FormFile,Description,TicketId")] TicketAttachment ticketAttachment)
+        {
+            string statusMessage;
+
+            if (ModelState.IsValid && ticketAttachment.FormFile != null)
+            {
+                ticketAttachment.FileData = await _btFileService.ConvertFileToByteArrayAsync(ticketAttachment.FormFile);
+                //ticketAttachment.FormFile = ticketAttachment.FormFile.FileName;
+                //ticketAttachment.FileType = ticketAttachment.FormFile.ContentType;
+
+                //ticketAttachment.Created = DateTimeOffset.Now;
+                //ticketAttachment.UserId = _userManager.GetUserId(User);
+
+                await _btTicketService.AddTicketAttachmentAsync(ticketAttachment);
+                statusMessage = "Success: New attachment added to Ticket.";
+            }
+            else
+            {
+                statusMessage = "Error: Invalid data.";
+
+            }
+
+            return RedirectToAction("Details", new { id = ticketAttachment.TicketId, message = statusMessage });
         }
 
         private bool TicketExists(int id)

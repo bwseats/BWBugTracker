@@ -84,10 +84,18 @@
                             {
                                 <tr>
                                     <td width="30"><input type="checkbox" name="checkboxRow1" class="checkbox-style-1 p-relative top-2" value="" /></td>
-                                    <td><a asp-controller="Projects" asp-action="PortoDetails" asp-route-id="@project.Id"><strong>@Html.DisplayFor(modelItem => project.Name)</strong></a></td>
+                                    <td><a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id"><strong>@Html.DisplayFor(modelItem => project.Name)</strong></a></td>
                                     <td>@Html.DisplayFor(modelItem => project.Description)</td>
                                     <td>@Html.DisplayFor(modelItem => project.StartDate)</td>
                                     <td>@Html.DisplayFor(modelItem => project.EndDate)</td>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <td>
+                                            <a class="nav-link" asp-controller="Projects" asp-action="AssignPM" asp-route-id="@project.Id">
+                                                Assign PM
+                                            </a>
+                                        </td>
+                                    }
                                     <td><span class="ecommerce-status on-hold">On Hold</span></td>
                                 </tr>
                             }

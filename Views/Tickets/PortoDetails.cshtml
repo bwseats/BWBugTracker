@@ -172,6 +172,106 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-8 col col-cols-2 mt-5 ">
+                    <div class="col">
+                        <div class="bg-secondary">
+                            <div class="card m-1 p-2">
+                                <div class="card-header">
+                                    <h2>Comments</h2>
+                                </div>
+                                <div class="card-body" style="overflow-y:auto;height:600px;">
+                                    <form asp-controller="Tickets" asp-action="AddTicketComment" method="post">
+                                        <input type="hidden" asp-for="Id" name="TicketId" />
+                                        <div class="row row--10">
+                                            @if (User.Identity!.IsAuthenticated)
+                                            {
+                                                <div class="col-12">
+                                                    <div class="form-group">
+                                                        <label for="message">Leave a Comment</label>
+                                                        <textarea id="Body" name="Body"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12">
+                                                    <div class="form-submit cerchio">
+                                                        <input type="submit" class="axil-button button-rounded" value="Post Comment">
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="col-lg-12">
+                                                    <div class="form-submit cerchio">
+                                                        <a href="/Identity/Account/Login" class="axil-button button-rounded">Login to Post Comment</a>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </form>
+                                    <hr />
+                                    <h6>Comments</h6>
+                                    <ul class="right_chat list-unstyled mb-0">
+                                        @*@foreach (TicketComment ticketComment in Model.Comments)
+                                        {
+                                            <!-- Start Single Comment  -->
+                                            <li class="comment">
+                                                <div class="comment-body">
+                                                    <div class="single-comment">
+                                                        <div class="comment-img">
+                                                            <img class="comment-author-img" src="~/img/DefaultUserImage.jpg" alt="Author Images" />
+                                                        </div>
+                                                        <div class="comment-inner">
+                                                            <h6 class="commenter">
+                                                                <a class="hover-flip-item-wrapper" asp-controller="Home" asp-action="Index">
+                                                                    <span class="hover-flip-item">
+                                                                        <span data-text="@ticketComment.BTUser!.FullName">
+                                                                            @ticketComment.BTUser!.FullName
+                                                                        </span>
+                                                                    </span>
+                                                                </a>
+                                                            </h6>
+                                                            <div class="comment-meta">
+                                                                <div class="time-spent">@ticketComment.Created</div>
+                                                            </div>
+                                                            <div class="comment-text">
+                                                                <p class="b2">
+                                                                    @ticketComment.Comment
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <!-- End Single Comment  -->
+                                        }*@
+                                    </ul>
+                                </div>
+                                <div class="card-footer">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="bg-secondary">
+                            <div class="card m-1 p-2">
+                                <div class="card-header">
+                                    <h2>Attachments</h2>
+                                </div>
+                                <div class="card-body" style="overflow-y:auto;height:300px;">
+
+                                    @* Refer to the Ticket Attachments document for this section *@
+
+                                    @* Ticket attachments part 1 here *@
+
+
+                                    @* Ticket attachments part 2 here *@
+
+                                </div>
+                                <div class="card-footer">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>

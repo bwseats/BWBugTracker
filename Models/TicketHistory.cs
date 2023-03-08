@@ -27,7 +27,7 @@ namespace BWBugTracker.Models
 
         public virtual Ticket? Ticket { get; set; }
 
-        public virtual BTUser? User { get; set; }
+        public virtual BTUser? BTUser { get; set; }
 
     }
 }

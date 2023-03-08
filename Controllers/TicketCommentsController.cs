@@ -22,7 +22,7 @@ namespace BWBugTracker.Controllers
         // GET: TicketComments
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.TicketComments.Include(t => t.Ticket).Include(t => t.User);
+            var applicationDbContext = _context.TicketComments.Include(t => t.Ticket).Include(t => t.BTUser);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -36,7 +36,7 @@ namespace BWBugTracker.Controllers
 
             var ticketComment = await _context.TicketComments
                 .Include(t => t.Ticket)
-                .Include(t => t.User)
+                .Include(t => t.BTUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (ticketComment == null)
             {
@@ -68,7 +68,7 @@ namespace BWBugTracker.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Description", ticketComment.TicketId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", ticketComment.UserId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", ticketComment.BTUserId);
             return View(ticketComment);
         }
 
@@ -86,7 +86,7 @@ namespace BWBugTracker.Controllers
                 return NotFound();
             }
             ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Description", ticketComment.TicketId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", ticketComment.UserId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", ticketComment.BTUserId);
             return View(ticketComment);
         }
 
@@ -123,7 +123,7 @@ namespace BWBugTracker.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Description", ticketComment.TicketId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", ticketComment.UserId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", ticketComment.BTUserId);
             return View(ticketComment);
         }
 
@@ -137,7 +137,7 @@ namespace BWBugTracker.Controllers
 
             var ticketComment = await _context.TicketComments
                 .Include(t => t.Ticket)
-                .Include(t => t.User)
+                .Include(t => t.BTUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (ticketComment == null)
             {

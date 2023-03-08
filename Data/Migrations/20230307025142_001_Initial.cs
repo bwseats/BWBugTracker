@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BWBugTracker.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class _001_Initital : Migration
+    public partial class _001_Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -503,14 +503,14 @@ namespace BWBugTracker.Data.Migrations
                     Comment = table.Column<string>(type: "text", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TicketId = table.Column<int>(type: "integer", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: true)
+                    BTUserId = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TicketComments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TicketComments_AspNetUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_TicketComments_AspNetUsers_BTUserId",
+                        column: x => x.BTUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
@@ -533,17 +533,17 @@ namespace BWBugTracker.Data.Migrations
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     OldValue = table.Column<string>(type: "text", nullable: true),
                     NewValue = table.Column<string>(type: "text", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: false)
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    BTUserId = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TicketHistories", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TicketHistories_AspNetUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_TicketHistories_AspNetUsers_BTUserId",
+                        column: x => x.BTUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_TicketHistories_Tickets_TicketId",
                         column: x => x.TicketId,
@@ -665,24 +665,24 @@ namespace BWBugTracker.Data.Migrations
                 column: "TicketId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_TicketComments_BTUserId",
+                table: "TicketComments",
+                column: "BTUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TicketComments_TicketId",
                 table: "TicketComments",
                 column: "TicketId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TicketComments_UserId",
-                table: "TicketComments",
-                column: "UserId");
+                name: "IX_TicketHistories_BTUserId",
+                table: "TicketHistories",
+                column: "BTUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TicketHistories_TicketId",
                 table: "TicketHistories",
                 column: "TicketId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TicketHistories_UserId",
-                table: "TicketHistories",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tickets_DeveloperUserId",

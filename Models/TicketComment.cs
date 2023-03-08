@@ -14,13 +14,13 @@ namespace BWBugTracker.Models
 
         public int TicketId { get; set; }
 
-        public string? UserId { get; set; }
+        public string? BTUserId { get; set; }
 
 
         // nav props
 
         public virtual Ticket? Ticket { get; set; }
 
-        public virtual BTUser? User { get; set; }
+        public virtual BTUser? BTUser { get; set; }
     }
 }
