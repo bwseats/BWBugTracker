@@ -19,19 +19,52 @@ namespace BWBugTracker.Services
             throw new NotImplementedException();
         }
         
-        public Task<Ticket> GetTicketAsync(int ticketId)
+        public async Task<Ticket> GetTicketAsync(int? ticketId)
         {
-            throw new NotImplementedException();
+            var ticket = await _context.Tickets
+                                       .Include(t => t.DeveloperUser)
+                                       .Include(t => t.Project)
+                                       .Include(t => t.SubmitterUser)
+                                       .Include(t => t.Comments)
+                                       .Include(t => t.TicketPriority)
+                                       .Include(t => t.TicketStatus)
+                                       .Include(t => t.TicketType)
+                                       .FirstOrDefaultAsync(m => m.Id == ticketId);
+
+            return ticket!;
         }
         
-        public Task UpdateTicketAsync(Ticket ticket)
+        public async Task<Ticket> GetTicketAsNoTrackingAsync(int? ticketId)
         {
-            throw new NotImplementedException();
+            var ticket = await _context.Tickets
+                                       .Include(t => t.DeveloperUser)
+                                       .Include(t => t.Project)
+                                       .Include(t => t.SubmitterUser)
+                                       .Include(t => t.Comments)
+                                       .Include(t => t.TicketPriority)
+                                       .Include(t => t.TicketStatus)
+                                       .Include(t => t.TicketType)
+                                       .AsNoTracking()
+                                       .FirstOrDefaultAsync(m => m.Id == ticketId);
+
+            return ticket!;
+        }
+        
+        public async Task UpdateTicketAsync(Ticket ticket)
+        {
+            _context.Update(ticket);
+            await _context.SaveChangesAsync();
         }
 
         public Task ArchiveTicketAsync(Ticket ticket)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task AddTicketCommentAsync(TicketComment ticketComment)
+        {
+            _context.Add(ticketComment);
+            await _context.SaveChangesAsync();
         }
 
         public async Task AddTicketAttachmentAsync(TicketAttachment ticketAttachment)
@@ -40,6 +73,50 @@ namespace BWBugTracker.Services
             {
                 await _context.AddAsync(ticketAttachment);
                 await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<Ticket> GetTicketByIdAsync(int? ticketId)
+        {
+
+
+            try
+            {
+                Ticket? ticket = await _context.Tickets
+                                               .Include(t => t.DeveloperUser)
+                                               .Include(t => t.Project)
+                                               .Include(t => t.SubmitterUser)
+                                               .Include(t => t.TicketPriority)
+                                               .Include(t => t.TicketStatus)
+                                               .Include(t => t.TicketType)
+                                               .Include(t => t.Comments)
+                                               .Include(t => t.Attachments)
+                                               .Include(t => t.History)
+                                               .FirstOrDefaultAsync(t => t.Id == ticketId);
+
+
+                return ticket!;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<TicketAttachment> GetTicketAttachmentByIdAsync(int ticketAttachmentId)
+        {
+            try
+            {
+                TicketAttachment? ticketAttachment = await _context.TicketAttachments
+                                                                  .Include(t => t.BTUser)
+                                                                  .FirstOrDefaultAsync(t => t.Id == ticketAttachmentId);
+                return ticketAttachment!;
             }
             catch (Exception)
             {

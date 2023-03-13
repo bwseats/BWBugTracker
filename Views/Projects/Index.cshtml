@@ -7,6 +7,7 @@
 @using X.PagedList.Web.Common;
 
 @inject IBTFileService _BTFileService
+@inject IBTProjectService _BTProjectService
 
 @{
     ViewData["Title"] = "Index";
@@ -71,23 +72,23 @@
 
                         <thead>
                             <tr>
-                                <th width="3%"><input type="checkbox" name="select-all" class="select-all checkbox-style-1 p-relative top-2" value="" /></th>
                                 <th width="8%">Project</th>
                                 <th width="28%">Description</th>
-                                <th width="18%">Start Date</th>
-                                <th width="18%">End Date</th>
-                                <th width="15%">Status</th>
+                                <th width="12%">Start Date</th>
+                                <th width="12%">End Date</th>
+                                <th width="12%">Image</th>
+                                <th width="15%">Project Manager</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (Project project in Model)
                             {
                                 <tr>
-                                    <td width="30"><input type="checkbox" name="checkboxRow1" class="checkbox-style-1 p-relative top-2" value="" /></td>
                                     <td><a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id"><strong>@Html.DisplayFor(modelItem => project.Name)</strong></a></td>
                                     <td>@Html.DisplayFor(modelItem => project.Description)</td>
                                     <td>@Html.DisplayFor(modelItem => project.StartDate)</td>
                                     <td>@Html.DisplayFor(modelItem => project.EndDate)</td>
+                                    <td><img class="img-fluid border rounded-3 m-2" style="max-height: 250px;" src="@_BTFileService.ConvertByteArrayToFile(project.ImageFileData!, project.ImageFileType!, (int)DefaultImage.ProjectImage)" /></td>
                                     @if (User.IsInRole("Admin"))
                                     {
                                         <td>

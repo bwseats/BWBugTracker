@@ -6,5 +6,6 @@ namespace BWBugTracker.Services.Interfaces
     {
         public Task<Company> GetCompanyInfoAsync(int? companyId);
         public Task<List<BTUser>> GetMembersAsync(int? companyId);
+        public Task<BTUser> GetMemberAsync(string? userId, int? companyId);
     }
 }

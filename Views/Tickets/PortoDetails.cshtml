@@ -1,12 +1,34 @@
 ﻿@model BWBugTracker.Models.Ticket
 
+@inject BWBugTracker.Services.Interfaces.IBTTicketService _btTicketService
+
+<header class="page-header">
+    <h2>Tickets</h2>
+
+    <div class="right-wrapper text-end">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="index.html">
+                    <i class="bx bx-home-alt"></i>
+                </a>
+            </li>
+
+            <li><span>Tables</span></li>
+
+            <li><span>Advanced</span></li>
+
+        </ol>
+
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+    </div>
+</header>
 <form class="order-details action-buttons-fixed" method="post">
     <div class="row">
         <div class="col-xl-4 mb-4 mb-xl-0">
 
             <div class="card card-modern">
                 <div class="card-header">
-                    <h2 class="card-title">Project Info</h2>
+                    <h2 class="card-title">Ticket Details</h2>
                 </div>
                 <div class="card-body">
                     <div class="form-row">
@@ -22,19 +44,14 @@
 
             <div class="card card-modern">
                 <div class="card-header">
-                    <h2 class="card-title">Addresses</h2>
+                    <h2 class="card-title">Description</h2>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-xl-auto me-xl-5 pe-xl-5 mb-4 mb-xl-0">
                             <h3 class="text-color-dark font-weight-bold text-4 line-height-1 mt-0 mb-3">BILLING</h3>
                             <ul class="list list-unstyled list-item-bottom-space-0">
-                                <li>Street Name Example</li>
-                                <li>1234</li>
-                                <li>Detroit</li>
-                                <li>Michigan</li>
-                                <li>93218</li>
-                                <li>USA</li>
+                                <li></li>
                             </ul>
                             <strong class="d-block text-color-dark">Email address:</strong>
                             <a href="mailto:johndoe@domain.com">johndoe@domain.com</a>

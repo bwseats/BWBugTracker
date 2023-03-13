@@ -300,9 +300,11 @@ namespace BWBugTracker.Services
             }
         }
 
-		public Task<List<Project>> GetAllProjectsByCompanyIdAsync(int companyId)
+		public async Task<List<Project>> GetAllProjectsByCompanyIdAsync(int companyId)
 		{
-			throw new NotImplementedException();
+			List<Project> projects = await _context.Projects.Where(p => p.CompanyId == companyId).ToListAsync();
+
+            return projects;
 		}
 
 		public Task<List<Project>> GetArchivedProjectsByCompanyIdAsync(int companyId)
@@ -315,7 +317,7 @@ namespace BWBugTracker.Services
 			throw new NotImplementedException();
 		}
 
-        public async Task<bool> AddMembersToProjectAsync(IEnumerable<string> userIds, int? projectId, int? companyId)
+        public async Task AddMembersToProjectAsync(IEnumerable<string> userIds, int? projectId, int? companyId)
         {
             try
             {
@@ -348,9 +350,28 @@ namespace BWBugTracker.Services
             }
         }
 
-        public Task<bool> RemoveMembersFromProjectAsync(int? projectId, int? companyId)
+        public async Task RemoveMembersFromProjectAsync(int? projectId, int? companyId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Project? project = await GetProjectByIdAsync(projectId, companyId);
+
+                foreach (BTUser member in project.Members)
+                {
+                    if (!await _rolesService.IsUserInRoleAsync(member, nameof(BTRoles.ProjectManager)))
+                    {
+                        project.Members.Remove(member);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
 

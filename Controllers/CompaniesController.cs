@@ -7,16 +7,31 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BWBugTracker.Data;
 using BWBugTracker.Models;
+using BWBugTracker.Models.ViewModels;
+using BWBugTracker.Extensions;
+using Microsoft.AspNetCore.Identity;
+using BWBugTracker.Services;
+using BWBugTracker.Services.Interfaces;
+using BWBugTracker.Models.Enums;
 
 namespace BWBugTracker.Controllers
 {
     public class CompaniesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<BTUser> _userManager;
+        private readonly IBTRolesService _rolesService;
+        private readonly IBTCompanyService _companyService;
 
-        public CompaniesController(ApplicationDbContext context)
+        public CompaniesController(ApplicationDbContext context,
+                                   UserManager<BTUser> userManager,
+                                   IBTRolesService rolesService,
+                                   IBTCompanyService companyService)
         {
             _context = context;
+            _userManager = userManager;
+            _rolesService = rolesService;
+            _companyService = companyService;
         }
 
         // GET: Companies
@@ -158,6 +173,70 @@ namespace BWBugTracker.Controllers
         private bool CompanyExists(int id)
         {
           return (_context.Companies?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ManageUserRoles()
+        {
+            // add an instance of the viewmodel as a list (model)
+            List<ManageUserRolesViewModel> viewModelList = new List<ManageUserRolesViewModel>();
+
+            // get CompanyId
+            int companyId = User.Identity!.GetCompanyId();
+
+            // get all company users
+            IEnumerable<BTUser>? btUsers = await _context.Users
+                                                  .Where(u => u.CompanyId == companyId)
+                                                  .ToListAsync();
+
+            // loop over the users to populate an instance of the viewmodel
+            foreach (BTUser btUser in btUsers)
+            {
+                // instantiate single viewmodel
+                ManageUserRolesViewModel viewModel = new()
+                {
+                    BTUser = btUser,
+                    Roles = new MultiSelectList(await _rolesService.GetRolesAsync(), "Id", "Name")
+                };
+
+                // add viewmodel to the model list
+                viewModelList.Add(viewModel);
+
+            }
+
+            // return the model to the view
+            return View(viewModelList);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ManagerUserRoles(ManageUserRolesViewModel viewModel)
+        {
+            // get the CompanyId
+            int companyId = User.Identity!.GetCompanyId();
+
+            // instantiate the BTUser
+            BTUser? btUser = await _companyService.GetMemberAsync(viewModel.BTUser!.Id, companyId);
+
+            // get roles for the user
+            IEnumerable<string> currentRoles = await _rolesService.GetUserRolesAsync(btUser);
+
+            // get selected role(s) for the user submitted from the form
+            IEnumerable<string> selectedRoles = viewModel.SelectedRoles!.ToList();
+
+            // remove current role(s) and add new role
+            await _rolesService.RemoveUserFromRolesAsync(btUser!, currentRoles);
+
+            foreach (string role in selectedRoles)
+            {
+                await _rolesService.AddUserToRoleAsync(btUser!, role);
+            }
+
+            await _context.SaveChangesAsync();
+
+            // navigate
+            return RedirectToAction("ManageUserRoles");
+
         }
     }
 }

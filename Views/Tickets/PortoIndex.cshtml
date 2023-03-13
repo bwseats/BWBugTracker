@@ -1,0 +1,64 @@
+﻿@model IEnumerable<BWBugTracker.Models.Ticket>
+
+<header class="page-header">
+    <h2>Tickets</h2>
+
+    <div class="right-wrapper text-end">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="index.html">
+                    <i class="bx bx-home-alt"></i>
+                </a>
+            </li>
+
+            <li><span>Tables</span></li>
+
+            <li><span>Advanced</span></li>
+
+        </ol>
+
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+    </div>
+</header>
+
+<!-- start: page -->
+<div class="row">
+    <div class="col">
+        <section class="card">
+            <header class="card-header">
+                <h2 class="card-title">All Tickets</h2>
+            </header>
+            <div class="card-body">
+
+                <table class="table table-bordered table-striped mb-0" id="datatable-default">
+
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Project</th>
+                            <th>Created Date</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                    @foreach (Ticket ticket in Model.ToList())
+                    {
+                        <tbody>
+                            <tr>
+                                <td>@ticket.Title</td>
+                                <td>@ticket.Description</td>
+                                <td>@ticket.Project</td>
+                                <td>@ticket.Created</td>
+                                <td class="d-flex" style="justify-content:space-evenly">
+                                    <a asp-action="Details" class="btn btn-primary">Details</a>
+                                    <a asp-action="Edit" class="btn btn-primary">Edit</a>
+                                    <a asp-action="Delete" class="btn btn-primary">Delete</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    }
+                </table>
+            </div>
+        </section>
+    </div>
+</div>

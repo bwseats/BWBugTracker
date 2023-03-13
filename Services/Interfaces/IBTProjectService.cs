@@ -19,9 +19,9 @@ namespace BWBugTracker.Services.Interfaces
         #region Extended Methods
 
 
-        public Task<bool> AddMembersToProjectAsync(IEnumerable<string> userIds, int? projectId, int? companyId);
+        public Task AddMembersToProjectAsync(IEnumerable<string> userIds, int? projectId, int? companyId);
         
-        public Task<bool> RemoveMembersFromProjectAsync(int? projectId, int? companyId);
+        public Task RemoveMembersFromProjectAsync(int? projectId, int? companyId);
 
         public Task<bool> AddMemberToProjectAsync(BTUser? member, int? projectId);
 

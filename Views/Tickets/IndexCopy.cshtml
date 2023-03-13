@@ -1,0 +1,43 @@
+﻿@model IEnumerable<BWBugTracker.Models.Ticket>
+
+<header class="page-header">
+    <h2>Tickets</h2>
+
+    <div class="right-wrapper text-end">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="index.html">
+                    <i class="bx bx-home-alt"></i>
+                </a>
+            </li>
+
+            <li><span>Tables</span></li>
+
+            <li><span>Advanced</span></li>
+
+        </ol>
+
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+    </div>
+</header>
+
+<!-- start: page -->
+<div class="row row-gutter-sm mb-5">
+    <div class="col-lg-3-5 col-xl-4-5">
+        <div class="row row-gutter-sm">
+            @foreach (Ticket ticket in Model.ToList())
+            {
+                <div class="col-sm-6 col-xl-3 mb-4">
+                    <div class="card card-modern card-modern-alt-padding">
+                        <div class="card-body bg-light">
+                            <h3><strong>@ticket.Title</strong></h3>
+                            <h4 class="text-4 line-height-2 mt-0 mb-2">@ticket.Description</h4>
+                            <h3>@ticket.Project?.Name</h3>
+                            <a asp-action="PortoDetails" asp-route-id="@ticket.Id" class="btn btn-primary">Details</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

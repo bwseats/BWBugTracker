@@ -10,6 +10,11 @@ using BWBugTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using BWBugTracker.Services;
 using BWBugTracker.Services.Interfaces;
+using BWBugTracker.Extensions;
+using BWBugTracker.Models.Enums;
+using BWBugTracker.Models.ViewModels;
+using X.PagedList;
+using System.ComponentModel.Design;
 
 namespace BWBugTracker.Controllers
 {
@@ -19,16 +24,28 @@ namespace BWBugTracker.Controllers
         private readonly UserManager<BTUser> _userManager;
         private readonly IBTFileService _btFileService;
         private readonly IBTTicketService _btTicketService;
+        private readonly IBTRolesService _btRolesService;
+        private readonly IBTTicketHistoryService _btHistoryService;
+        private readonly IBTProjectService _btProjectService;
+        private readonly IBTNotificationService _btNotificationService;
 
         public TicketsController(ApplicationDbContext context,
                                  UserManager<BTUser> userManager,
                                  IBTFileService btFileService,
-                                 IBTTicketService btTicketService)
+                                 IBTTicketService btTicketService,
+                                 IBTRolesService btRolesService,
+                                 IBTTicketHistoryService btHistoryService,
+                                 IBTProjectService btProjectService,
+                                 IBTNotificationService btNotificationService)
         {
             _context = context;
             _userManager = userManager;
             _btFileService = btFileService;
             _btTicketService = btTicketService;
+            _btRolesService = btRolesService;
+            _btHistoryService = btHistoryService;
+            _btProjectService = btProjectService;
+            _btNotificationService = btNotificationService;
         }
 
         // GET: Tickets
@@ -44,14 +61,40 @@ namespace BWBugTracker.Controllers
 
             return View(await applicationDbContext.ToListAsync());
         }
+        
+        public async Task<IActionResult> IndexCopy()
+        {
+            var applicationDbContext = _context.Tickets.Where(p => p.Archived == false)
+                                                       .Include(t => t.DeveloperUser)
+                                                       .Include(t => t.Project)
+                                                       .Include(t => t.SubmitterUser)
+                                                       .Include(t => t.TicketPriority)
+                                                       .Include(t => t.TicketStatus)
+                                                       .Include(t => t.TicketType);
 
-		public IActionResult PortoDetails()
-		{
-			return View();
-		}
+            return View(await applicationDbContext.ToListAsync());
+        }
+        
+        public async Task<IActionResult> PortoIndex()
+        {
+            var applicationDbContext = _context.Tickets.Where(p => p.Archived == false)
+                                                       .Include(t => t.DeveloperUser)
+                                                       .Include(t => t.Project)
+                                                       .Include(t => t.SubmitterUser)
+                                                       .Include(t => t.TicketPriority)
+                                                       .Include(t => t.TicketStatus)
+                                                       .Include(t => t.TicketType);
 
-		// GET: Tickets/Details/5
-		public async Task<IActionResult> Details(int? id)
+            return View(await applicationDbContext.ToListAsync());
+        }
+
+        public IActionResult PortoDetails()
+        {
+            return View();
+        }
+
+        // GET: Tickets/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Tickets == null)
             {
@@ -99,19 +142,69 @@ namespace BWBugTracker.Controllers
         {
             ModelState.Remove("SubmitterUserId");
 
+            BTUser? btUser = await _userManager.GetUserAsync(User);
+
             if (ModelState.IsValid)
             {
-                BTUser? btUser = await _userManager.GetUserAsync(User);
+                string? userId = _userManager.GetUserId(User);
 
-                ticket.SubmitterUserId = btUser!.Id;
+                ticket.SubmitterUserId = userId;
 
                 ticket.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
                 ticket.Updated = DataUtility.GetPostGresDate(DateTime.UtcNow);
 
-                ticket.TicketStatusId = 1;
+                ticket.TicketStatusId = (await _context.TicketStatuses.FirstOrDefaultAsync(s => s.Name == nameof(BTTicketStatuses.New)))!.Id;
 
-                _context.Add(ticket);
-                await _context.SaveChangesAsync();
+                await _btTicketService.AddTicketAsync(ticket);
+
+                //TODO: add history record
+                int companyId = User.Identity!.GetCompanyId();
+
+                Ticket? newTicket = await _context.Tickets
+                                                  .Include(t => t.Project)
+                                                      .ThenInclude(p => p!.Company)
+                                                  .Include(t => t.Attachments)
+                                                  .Include(t => t.Comments)
+                                                  .Include(t => t.DeveloperUser)
+                                                  .Include(t => t.History)
+                                                  .Include(t => t.SubmitterUser)
+                                                  .Include(t => t.TicketPriority)
+                                                  .Include(t => t.TicketStatus)
+                                                  .Include(t => t.TicketType)
+                                                  .AsNoTracking()
+                                                  .FirstOrDefaultAsync(t => t.Id == ticket.Id && t.Project!.CompanyId == companyId && t.Archived == false);
+
+                //Ticket? newTicket = await _btTicketService.GetTicketAsNoTrackingAsync(ticket.Id, companyId);
+
+                await _btHistoryService.AddHistoryAsync(null, newTicket, userId);
+
+
+                //TODO: notification
+
+                BTUser? projectManager = await _btProjectService.GetProjectManagerAsync(ticket.ProjectId);
+
+                Notification? notification = new()
+                {
+                    TicketId = ticket.Id,
+                    Title = "A new ticket has been added",
+                    Message = $"Ticket '{ticket.Title}' was created by {btUser?.FullName}.",
+                    Created = DataUtility.GetPostGresDate(DateTime.Now),
+                    SenderId = userId,
+                    RecipientId = projectManager?.Id,
+                    NotificationTypeId = (await _context.NotificationTypes.FirstOrDefaultAsync(n => n.Name == nameof(BTNotificationTypes.Ticket)))!.Id
+                };
+
+                if (projectManager != null)
+                {
+                    await _btNotificationService.AddNotificationAsync(notification);
+                    await _btNotificationService.SendEmailNotificationAsync(notification, "New Ticket Added");
+                }
+                else
+                {
+                    await _btNotificationService.AdminNotificationAsync(notification, companyId);
+                    await _btNotificationService.SendAdminEmailNotificationAsync(notification, "New Project Ticket Added", companyId);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -159,13 +252,19 @@ namespace BWBugTracker.Controllers
 
             if (ModelState.IsValid)
             {
+                int companyId = User.Identity!.GetCompanyId();
+                
+                string? userId = _userManager.GetUserId(User);
+                
+                Ticket oldTicket = await _btTicketService.GetTicketAsNoTrackingAsync(ticket.Id);
+
                 try
                 {
+
                     ticket.Created = DataUtility.GetPostGresDate(ticket.Created);
                     ticket.Updated = DataUtility.GetPostGresDate(DateTime.UtcNow);
 
-                    _context.Update(ticket);
-                    await _context.SaveChangesAsync();
+                    await _btTicketService.UpdateTicketAsync(ticket);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -178,6 +277,39 @@ namespace BWBugTracker.Controllers
                         throw;
                     }
                 }
+
+                Ticket newTicket = await _btTicketService.GetTicketAsNoTrackingAsync(ticket.Id);
+
+                await _btHistoryService.AddHistoryAsync(oldTicket, newTicket, userId);
+
+                // notifcation
+
+                BTUser? btUser = await _userManager.GetUserAsync(User);
+
+                BTUser? projectManager = await _btProjectService.GetProjectManagerAsync(ticket.ProjectId);
+
+                Notification? notification = new()
+                {
+                    TicketId = ticket.Id,
+                    Title = "A new ticket has been added",
+                    Message = $"Ticket '{ticket.Title}' was created by {btUser?.FullName}.",
+                    Created = DataUtility.GetPostGresDate(DateTime.Now),
+                    SenderId = userId,
+                    RecipientId = projectManager?.Id,
+                    NotificationTypeId = (await _context.NotificationTypes.FirstOrDefaultAsync(n => n.Name == nameof(BTNotificationTypes.Ticket)))!.Id
+                };
+
+                if (projectManager != null)
+                {
+                    await _btNotificationService.AddNotificationAsync(notification);
+                    await _btNotificationService.SendEmailNotificationAsync(notification, "New Ticket Added");
+                }
+                else
+                {
+                    await _btNotificationService.AdminNotificationAsync(notification, companyId);
+                    await _btNotificationService.SendAdminEmailNotificationAsync(notification, "New Project Ticket Added", companyId);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -227,7 +359,7 @@ namespace BWBugTracker.Controllers
             {
                 ticket.Archived = true;
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -248,8 +380,9 @@ namespace BWBugTracker.Controllers
 
                 ticketComment.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
 
-                _context.Add(ticketComment);
-                await _context.SaveChangesAsync();
+                await _btTicketService.AddTicketCommentAsync(ticketComment);
+
+                await _btHistoryService.AddHistoryAsync(ticketComment.TicketId, nameof(TicketComment), ticketComment.BTUserId);
 
                 return RedirectToAction("Details", new { id = ticketId });
             }
@@ -265,14 +398,26 @@ namespace BWBugTracker.Controllers
 
             if (ModelState.IsValid && ticketAttachment.FormFile != null)
             {
-                ticketAttachment.FileData = await _btFileService.ConvertFileToByteArrayAsync(ticketAttachment.FormFile);
-                //ticketAttachment.FormFile = ticketAttachment.FormFile.FileName;
-                //ticketAttachment.FileType = ticketAttachment.FormFile.ContentType;
+                try
+                {
+                    ticketAttachment.FileData = await _btFileService.ConvertFileToByteArrayAsync(ticketAttachment.FormFile);
+                    //ticketAttachment.FormFile = ticketAttachment.FormFile.FileName;
+                    //ticketAttachment.FileType = ticketAttachment.FormFile.ContentType;
 
-                //ticketAttachment.Created = DateTimeOffset.Now;
-                //ticketAttachment.UserId = _userManager.GetUserId(User);
+                    //ticketAttachment.Created = DateTimeOffset.Now;
+                    //ticketAttachment.UserId = _userManager.GetUserId(User);
 
-                await _btTicketService.AddTicketAttachmentAsync(ticketAttachment);
+                    await _btTicketService.AddTicketAttachmentAsync(ticketAttachment);
+
+                    await _btHistoryService.AddHistoryAsync(ticketAttachment.TicketId, nameof(TicketAttachment), ticketAttachment.BTUserId);
+
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
                 statusMessage = "Success: New attachment added to Ticket.";
             }
             else
@@ -286,7 +431,98 @@ namespace BWBugTracker.Controllers
 
         private bool TicketExists(int id)
         {
-          return (_context.Tickets?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Tickets?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AssignTicketDeveloper(int? ticketId)
+        {
+            if (ticketId == null)
+            {
+                return NotFound();
+            }
+
+            int companyId = User.Identity!.GetCompanyId();
+
+            Ticket? ticket = await _btTicketService.GetTicketByIdAsync(ticketId);
+
+            List<BTUser> DeveloperList = await _btRolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
+
+            string? currentDeveloperId = ticket.DeveloperUserId;
+
+            AssignDeveloperViewModel viewModel = new()
+            {
+                Ticket = ticket,
+                DeveloperList = new SelectList(DeveloperList, "Id", "FullName", currentDeveloperId)
+            };
+
+            return View(viewModel);
+
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignTicketDeveloper(AssignDeveloperViewModel model)
+        {
+            Ticket? ticket = await _btTicketService.GetTicketAsync(model.Ticket?.Id);
+
+            int companyId = User.Identity!.GetCompanyId();
+            
+            string? userId = _userManager.GetUserId(User);
+
+
+            if (model.DeveloperId != null)
+            {
+                Ticket oldTicket = await _btTicketService.GetTicketAsNoTrackingAsync(model.Ticket?.Id);
+
+                try
+                {
+                    ticket.DeveloperUserId = model.DeveloperId;
+
+                    await _btTicketService.UpdateTicketAsync(ticket);
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+                Ticket newTicket = await _btTicketService.GetTicketAsNoTrackingAsync(model.Ticket?.Id);
+
+                await _btHistoryService.AddHistoryAsync(oldTicket, newTicket, userId);
+
+                // notification
+
+                BTUser? btUser = await _userManager.GetUserAsync(User);
+
+                Notification? notification = new()
+                {
+                    TicketId = model.Ticket!.Id,
+                    Title = "A new developer has been assigned",
+                    Message = $"Ticket '{model.Ticket.Title}' was assigned by {btUser?.FullName}.",
+                    Created = DataUtility.GetPostGresDate(DateTime.Now),
+                    SenderId = userId,
+                    RecipientId = model.DeveloperId,
+                    NotificationTypeId = (await _context.NotificationTypes.FirstOrDefaultAsync(n => n.Name == nameof(BTNotificationTypes.Ticket)))!.Id
+                };
+                
+                await _btNotificationService.AddNotificationAsync(notification);
+                await _btNotificationService.SendEmailNotificationAsync(notification, "New Developer Assigned");
+
+                return RedirectToAction("Index");
+            }
+
+            List<BTUser> developers = await _btRolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
+
+            string? currentDeveloperId = model.DeveloperId;
+
+            AssignDeveloperViewModel viewModel = new()
+            {
+                Ticket = ticket,
+                DeveloperList = new SelectList(developers, "Id", "FullName", currentDeveloperId)
+            };
+
+            return View(viewModel);
         }
     }
 }

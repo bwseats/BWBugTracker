@@ -64,7 +64,7 @@ namespace BWBugTracker.Services
             }
         }
 
-        public async Task<List<BTUser>> GetUsersInRoleAsync(string roleName, int companyId)
+        public async Task<List<BTUser>> GetUsersInRoleAsync(string roleName, int? companyId)
         {
             try
             {

@@ -87,6 +87,65 @@ namespace BWBugTracker.Controllers
             return View(viewModel);
         }
 
+        [HttpGet]
+        [Authorize(Roles="Admin, ProjectManager")]
+        public async Task<IActionResult> AssignProjectMembers(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            int companyId = User.Identity!.GetCompanyId();
+
+            Project project = await _projectService.GetProjectByIdAsync(id, companyId);
+
+            List<BTUser> submitters = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Submitter), companyId);
+            List<BTUser> developers = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
+
+            List<BTUser> userList = submitters.Concat(developers).ToList();
+
+            List<string> currentMembers = project.Members.Select(m => m.Id).ToList();
+
+            ProjectMembersViewModel viewModel = new()
+            {
+                Project = project,
+                UsersList = new MultiSelectList(userList, "Id", "FullName", currentMembers)
+            };
+
+            return View(viewModel);
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles="Admin, ProjectManager")]
+        public async Task<IActionResult> AssignProjectMembers(ProjectMembersViewModel viewModel)
+        {
+            int companyId = User.Identity!.GetCompanyId();
+
+            if (viewModel.SelectedMembers != null)
+            {
+                await _projectService.RemoveMembersFromProjectAsync(viewModel.Project!.Id, companyId);
+
+                await _projectService.AddMembersToProjectAsync(viewModel.SelectedMembers, viewModel.Project!.Id, companyId);
+
+                return RedirectToAction(nameof(Details), new { id = viewModel.Project!.Id });
+            }
+
+            ModelState.AddModelError("SelectedMembers", "No users selected. Please select users to add to the project!");
+
+            viewModel.Project = await _projectService.GetProjectByIdAsync(viewModel.Project!.Id, companyId);
+            List<string> currentMembers = viewModel.Project.Members.Select(m => m.Id).ToList();
+
+            List<BTUser> submitters = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Submitter), companyId);
+            List<BTUser> developers = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
+            List<BTUser> userList = submitters.Concat(developers).ToList();
+
+            viewModel.UsersList = new MultiSelectList(userList, "Id", "FullName", currentMembers);
+
+            return View(viewModel);
+        }
+
         // GET: Projects
         public async Task<IActionResult> Index(int? pageNum)
         {
@@ -200,8 +259,6 @@ namespace BWBugTracker.Controllers
         }
 
         // POST: Projects/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageFormFile,ImageFileData,ImageFileType,Archived")] Project project)
@@ -237,6 +294,9 @@ namespace BWBugTracker.Controllers
                         throw;
                     }
                 }
+
+                await _projectService.UpdateProjectAsync(project);
+
                 return RedirectToAction(nameof(Index));
             }
 
