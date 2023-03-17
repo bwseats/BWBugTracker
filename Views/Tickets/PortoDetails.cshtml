@@ -2,30 +2,15 @@
 
 @inject BWBugTracker.Services.Interfaces.IBTTicketService _btTicketService
 
-<header class="page-header">
+<div class="page-header">
     <h2>Tickets</h2>
-
-    <div class="right-wrapper text-end">
-        <ol class="breadcrumbs">
-            <li>
-                <a href="index.html">
-                    <i class="bx bx-home-alt"></i>
-                </a>
-            </li>
-
-            <li><span>Tables</span></li>
-
-            <li><span>Advanced</span></li>
-
-        </ol>
-
-        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
-    </div>
-</header>
+</div>
 <form class="order-details action-buttons-fixed" method="post">
     <div class="row">
         <div class="col-xl-4 mb-4 mb-xl-0">
-
+            <div>
+                <h1 class="text-dark">@Model.Title</h1>
+            </div>
             <div class="card card-modern">
                 <div class="card-header">
                     <h2 class="card-title">Ticket Details</h2>
@@ -49,103 +34,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-xl-auto me-xl-5 pe-xl-5 mb-4 mb-xl-0">
-                            <h3 class="text-color-dark font-weight-bold text-4 line-height-1 mt-0 mb-3">BILLING</h3>
-                            <ul class="list list-unstyled list-item-bottom-space-0">
-                                <li></li>
-                            </ul>
-                            <strong class="d-block text-color-dark">Email address:</strong>
-                            <a href="mailto:johndoe@domain.com">johndoe@domain.com</a>
-                            <strong class="d-block text-color-dark mt-3">Phone:</strong>
-                            <a href="tel:+5551234" class="text-color-dark">555-1234</a>
-                        </div>
-                        <div class="col-xl-auto ps-xl-5">
-                            <h3 class="font-weight-bold text-color-dark text-4 line-height-1 mt-0 mb-3">SHIPPING</h3>
-                            <ul class="list list-unstyled list-item-bottom-space-0">
-                                <li>Street Name Example</li>
-                                <li>1234</li>
-                                <li>Detroit</li>
-                                <li>Michigan</li>
-                                <li>93218</li>
-                                <li>USA</li>
-                            </ul>
-                            <strong class="d-block text-color-dark">Email address:</strong>
-                            <a href="mailto:johndoe@domain.com">johndoe@domain.com</a>
-                            <strong class="d-block text-color-dark mt-3">Phone:</strong>
-                            <a href="tel:+5551234" class="text-color-dark">555-1234</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-
-            <div class="card card-modern">
-                <div class="card-header">
-                    <h2 class="card-title">Products</h2>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-ecommerce-simple table-ecommerce-simple-border-bottom table-borderless table-striped mb-0" style="min-width: 380px;">
-                            <thead>
-                                <tr>
-                                    <th width="8%" class="ps-4">ID</th>
-                                    <th width="65%">Name</th>
-                                    <th width="5%" class="text-end">Cost</th>
-                                    <th width="7%" class="text-end">Qty</th>
-                                    <th width="5%" class="text-end">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="ps-4"><a href="ecommerce-products-form.html"><strong>191</strong></a></td>
-                                    <td><a href="ecommerce-products-form.html"><strong>Product Name Example</strong></a></td>
-                                    <td class="text-end">$99</td>
-                                    <td class="text-end">1</td>
-                                    <td class="text-end">$99</td>
-                                </tr>
-                                <tr>
-                                    <td class="ps-4"><a href="ecommerce-products-form.html"><strong>192</strong></a></td>
-                                    <td><a href="ecommerce-products-form.html"><strong>Product Name Example 2</strong></a></td>
-                                    <td class="text-end">$50</td>
-                                    <td class="text-end">1</td>
-                                    <td class="text-end">$50</td>
-                                </tr>
-                                <tr>
-                                    <td class="ps-4"><a href="ecommerce-products-form.html"><strong>193</strong></a></td>
-                                    <td><a href="ecommerce-products-form.html"><strong>Product Name Example 3</strong></a></td>
-                                    <td class="text-end">$132</td>
-                                    <td class="text-end">1</td>
-                                    <td class="text-end">$132</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="row justify-content-end flex-column flex-lg-row my-3">
-                        <div class="col-auto me-5">
-                            <h3 class="font-weight-bold text-color-dark text-4 mb-3">Items Subtotal</h3>
-                            <span class="d-flex align-items-center">
-                                3 Items
-                                <i class="fas fa-chevron-right text-color-primary px-3"></i>
-                                <b class="text-color-dark text-xxs">$298.00</b>
-                            </span>
-                        </div>
-                        <div class="col-auto me-5">
-                            <h3 class="font-weight-bold text-color-dark text-4 mb-3">Shipping</h3>
-                            <span class="d-flex align-items-center">
-                                Flat Rate
-                                <i class="fas fa-chevron-right text-color-primary px-3"></i>
-                                <b class="text-color-dark text-xxs">$20.00</b>
-                            </span>
-                        </div>
-                        <div class="col-auto">
-                            <h3 class="font-weight-bold text-color-dark text-4 mb-3">Order Total</h3>
-                            <span class="d-flex align-items-center justify-content-lg-end">
-                                <strong class="text-color-dark text-5">$318.00</strong>
-                            </span>
+                            <p>@Model.Description</p>
                         </div>
                     </div>
                 </div>

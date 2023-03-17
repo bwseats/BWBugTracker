@@ -28,6 +28,16 @@ namespace BWBugTracker.Controllers
             return View();
         }
 
+        public IActionResult Landing()
+        {
+            return View();
+        }
+        
+        public IActionResult LandingTest()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

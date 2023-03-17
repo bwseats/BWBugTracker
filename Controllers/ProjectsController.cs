@@ -52,7 +52,9 @@ namespace BWBugTracker.Controllers
             int companyId = User.Identity!.GetCompanyId();
 
             IEnumerable<BTUser> projectManagers = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.ProjectManager), companyId);
+
             BTUser? currentPM = await _projectService.GetProjectManagerAsync(id);
+
             AssignPMViewModel viewModel = new()
             {
                 Project = await _projectService.GetProjectByIdAsync(id, companyId),
@@ -76,6 +78,7 @@ namespace BWBugTracker.Controllers
             }
 
             ModelState.AddModelError("PMId", "No project manager was found for this project. Please select a new project manager.");
+
             int companyId = User.Identity!.GetCompanyId();
 
             IEnumerable<BTUser> projectManagers = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.ProjectManager), companyId);
@@ -146,23 +149,20 @@ namespace BWBugTracker.Controllers
             return View(viewModel);
         }
 
-        // GET: Projects
-        public async Task<IActionResult> Index(int? pageNum)
+		// GET: Projects
+		public async Task<IActionResult> Index()
+		{
+			int companyId = User.Identity!.GetCompanyId();
+
+			IEnumerable<Project> projects = await _projectService.GetRecentProjectsAsync(companyId);
+
+			return View(projects);
+		}
+
+		// GET: Projects/Details/5
+		public async Task<IActionResult> Details(int? id)
         {
-            int pageSize = 10;
-            int page = pageNum ?? 1;
-
-            int companyId = User.Identity!.GetCompanyId();
-
-            IPagedList<Project> projects = (await _projectService.GetProjectsAsync(companyId)).ToPagedList(page, pageSize);
-
-            return View(projects);
-        }
-
-        // GET: Projects/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _projectService.GetProjectsAsync == null)
+            if (id == null)
             {
                 return NotFound();
             }
@@ -181,13 +181,31 @@ namespace BWBugTracker.Controllers
 
         public async Task<IActionResult> MyProjects()
         {
-            return View();
+            string? userId = _userManager.GetUserId(User);
+
+            BTUser? btUser = await _projectService.GetUserProjects(userId);
+
+            return View(btUser);
         }
 
-        public IActionResult PortoDetails()
+        public async Task<IActionResult> PortoDetails(int? id)
         {
-            return View();
-        }
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+			int companyId = User.Identity!.GetCompanyId();
+
+			Project? project = await _projectService.GetProjectAsync(companyId, id.Value);
+
+			if (project == null)
+			{
+				return NotFound();
+			}
+
+			return View(project);
+		}
 
         // GET: Projects/Create
         public async Task<IActionResult> Create()
@@ -232,6 +250,7 @@ namespace BWBugTracker.Controllers
             IEnumerable<ProjectPriority> priorities = await _projectService.GetProjectPrioritiesAsync();
 
             ViewData["ProjectPriorityId"] = new SelectList(priorities, "Id", "Name");
+
             return View(project);
         }
 
@@ -282,6 +301,7 @@ namespace BWBugTracker.Controllers
                         project.ImageFileType = project.ImageFormFile.ContentType;
                     }
 
+                    await _projectService.UpdateProjectAsync(project);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -295,14 +315,13 @@ namespace BWBugTracker.Controllers
                     }
                 }
 
-                await _projectService.UpdateProjectAsync(project);
-
                 return RedirectToAction(nameof(Index));
             }
 
             IEnumerable<ProjectPriority> priorities = await _projectService.GetProjectPrioritiesAsync();
 
             ViewData["ProjectPriorityId"] = new SelectList(priorities, "Id", "Name");
+
             return View(project);
         }
 

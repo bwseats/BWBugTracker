@@ -26,7 +26,7 @@ namespace BWBugTracker.Areas.Identity.Pages.Account
         public LoginModel(SignInManager<BTUser> signInManager, ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
-            _logger = logger;
+			_logger = logger;
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace BWBugTracker.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/");
+            returnUrl ??= Url.Content("~/Home/PortoIndex");
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 

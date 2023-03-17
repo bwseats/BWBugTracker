@@ -146,6 +146,7 @@ namespace BWBugTracker.Controllers
             return View(invite);
         }
 
+        // GET: ProcessInvite
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> ProcessInvite(string token, string email, string company)

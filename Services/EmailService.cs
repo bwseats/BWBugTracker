@@ -7,11 +7,11 @@ using MimeKit;
 
 namespace BWBugTracker.Services
 {
-    public class BTEmailService : IEmailSender
+    public class EmailService : IEmailSender
     {
         private readonly MailSettings _mailSettings;
 
-        public BTEmailService(IOptions<MailSettings> mailSettings)
+        public EmailService(IOptions<MailSettings> mailSettings)
         {
             _mailSettings = mailSettings.Value;
         }
@@ -25,10 +25,7 @@ namespace BWBugTracker.Services
 
             newEmail.Sender = MailboxAddress.Parse(emailSender);
 
-            foreach (var emailAddress in email.Split(";"))
-            {
-                newEmail.To.Add(MailboxAddress.Parse(emailAddress));
-            }
+            newEmail.To.Add(MailboxAddress.Parse(email));
 
             newEmail.Subject = subject;
 

@@ -10,7 +10,11 @@ namespace BWBugTracker.Services.Interfaces
 
         public Task<Ticket> GetTicketAsync(int? ticketId);
 
-        public Task<Ticket> GetTicketAsNoTrackingAsync(int? ticketId);
+        public Task<IEnumerable<Ticket>> GetTicketsAsync(int companyId);
+
+        public Task<IEnumerable<Ticket>> GetRecentTicketsAsync(int companyId);
+
+		public Task<Ticket> GetTicketAsNoTrackingAsync(int? ticketId, int? companyId);
 
         public Task UpdateTicketAsync(Ticket ticket);
 
@@ -32,5 +36,9 @@ namespace BWBugTracker.Services.Interfaces
         public Task<TicketAttachment> GetTicketAttachmentByIdAsync(int ticketAttachmentId);
 
         //public Task GetTicketAsNoTrackingAsync(ticket.Id, companyId);
+
+        public Task<IEnumerable<Ticket>> GetUserTickets(string? userId);
+
+        public Task<IEnumerable<Ticket>> GetRecentUserTickets(string? userId);
     }
 }

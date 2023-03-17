@@ -20,3 +20,10 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.dataTables_filter input {
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: none;
+}

@@ -25,28 +25,28 @@ builder.Services.AddIdentity<BTUser, IdentityRole>(options => options.SignIn.Req
                 .AddDefaultTokenProviders();
 
 // custom services
-builder.Services.AddScoped<IEmailSender, BTEmailService>();
-
-builder.Services.AddScoped<IBTRolesService, BTRolesService>();
+builder.Services.AddScoped<IEmailSender, EmailService>();
 
 builder.Services.AddScoped<IBTFileService, BTFileService>();
 
-builder.Services.AddScoped<IBTTicketService, BTTicketService>();
+builder.Services.AddScoped<IBTRolesService, BTRolesService>();
 
 builder.Services.AddScoped<IBTProjectService, BTProjectService>();
 
-builder.Services.AddScoped<IBTCompanyService, BTCompanyService>();
+builder.Services.AddScoped<IBTTicketService, BTTicketService>();
 
 builder.Services.AddScoped<IBTTicketHistoryService, BTTicketHistoryService>();
+
+builder.Services.AddScoped<IBTCompanyService, BTCompanyService>();
 
 builder.Services.AddScoped<IBTNotificationService, BTNotificationService>();
 
 builder.Services.AddScoped<IBTInviteService, BTInviteService>();
 
-
-
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
 builder.Services.AddMvc();
+
 
 var app = builder.Build();
 
@@ -75,7 +75,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=PortoIndex}/{id?}");
+    pattern: "{controller=Home}/{action=Landing}/{id?}");
 app.MapRazorPages();
 
 app.Run();

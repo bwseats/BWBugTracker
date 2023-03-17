@@ -94,6 +94,27 @@ namespace BWBugTracker.Services
                 throw;
             }
         }
+        
+        public async Task<IEnumerable<Project>> GetRecentProjectsAsync(int companyId)
+        {
+            try
+            {
+                IEnumerable<Project> projects = await _context.Projects
+                                                              .Where(p => p.Archived == false && p.CompanyId == companyId)
+                                                              .Include(p => p.Members)
+                                                              .Include(p => p.ProjectPriority)
+                                                              .Include(p => p.Tickets)
+                                                              .OrderByDescending(p => p.Created)
+                                                              .ToListAsync();
+
+                return projects;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
         public async Task UpdateProjectAsync(Project project)
         {
@@ -374,6 +395,14 @@ namespace BWBugTracker.Services
             }
         }
 
+        public async Task<BTUser> GetUserProjects(string? userId)
+        {
+            BTUser? btUser = await _context.Users
+                                           .Include(u => u.Projects)
+                                           .FirstOrDefaultAsync(u => u.Id == userId);
+
+            return btUser!;
+        }
 
         #endregion
     }

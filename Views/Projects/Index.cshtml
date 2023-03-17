@@ -9,15 +9,15 @@
 @inject IBTFileService _BTFileService
 @inject IBTProjectService _BTProjectService
 
+<link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css">
+
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New Project</a>
-</p>
+<div class="page-header">
+    <h2>Projects</h2>
+</div>
 
 <!-- start: page -->
 <div class="row">
@@ -28,47 +28,13 @@
                 <div class="datatables-header-footer-wrapper">
                     <div class="datatable-header">
                         <div class="row align-items-center mb-3">
-
                             <div class="col-12 col-lg-auto mb-3 mb-lg-0">
-                                <a href="ecommerce-orders-detail.html" class="btn btn-primary btn-md font-weight-semibold btn-py-2 px-4">+ Add Order</a>
-                            </div>
-
-                            <div class="col-8 col-lg-auto ms-auto ml-auto mb-3 mb-lg-0">
-                                <div class="d-flex align-items-lg-center flex-column flex-lg-row">
-                                    <label class="ws-nowrap me-3 mb-0">Filter By:</label>
-                                    <select class="form-control select-style-1 filter-by" name="filter-by">
-                                        <option value="all" selected>All</option>
-                                        <option value="1">ID</option>
-                                        <option value="2">Customer Name</option>
-                                        <option value="3">Date</option>
-                                        <option value="4">Total</option>
-                                        <option value="5">Status</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-4 col-lg-auto ps-lg-1 mb-3 mb-lg-0">
-                                <div class="d-flex align-items-lg-center flex-column flex-lg-row">
-                                    <label class="ws-nowrap me-3 mb-0">Show:</label>
-                                    <select class="form-control select-style-1 results-per-page" name="results-per-page">
-                                        <option value="12" selected>12</option>
-                                        <option value="24">24</option>
-                                        <option value="36">36</option>
-                                        <option value="100">100</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-auto ps-lg-1">
-                                <div class="search search-style-1 search-style-1-lg mx-lg-auto">
-                                    <div class="input-group">
-                                        <input type="text" class="search-term form-control" name="search-term" id="search-term" placeholder="Search Order">
-                                        <button class="btn btn-default" type="submit"><i class="bx bx-search"></i></button>
-                                    </div>
-                                </div>
+                                <a asp-action="Create" class="btn btn-primary btn-md font-weight-semibold btn-py-2 px-4">+ Create Project</a>
                             </div>
                         </div>
                     </div>
 
-                    <table class="table table-ecommerce-simple table-borderless table-striped mb-0" id="datatable-ecommerce-list" style="min-width: 640px;">
+                    @*<table class="table table-ecommerce-simple table-borderless table-striped mb-0" id="datatable-ecommerce-list" style="min-width: 640px;">
 
                         <thead>
                             <tr>
@@ -101,7 +67,46 @@
                                 </tr>
                             }
                         </tbody>
+                    </table>*@
+
+                    <table id="projectsTable" class="table table-ecommerce-simple table-borderless table-striped mb-0" style="min-width: 640px;">
+                        <thead>
+                            <tr>
+                                <th width="15%">Project</th>
+                                <th width="35%">Description</th>
+                                <th width="12%">Start Date</th>
+                                <th width="12%">End Date</th>
+                                <th width="12%">Image</th>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <th width="15%">Project Manager</th>
+                                }
+                                @*<th width="12%">Status</th>*@
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (Project project in Model)
+                            {
+                                <tr>
+                                    <td><a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id"><strong>@Html.DisplayFor(modelItem => project.Name)</strong></a></td>
+                                    <td>@Html.DisplayFor(modelItem => project.Description)</td>
+                                    <td>@Html.DisplayFor(modelItem => project.StartDate)</td>
+                                    <td>@Html.DisplayFor(modelItem => project.EndDate)</td>
+                                    <td><img class="img-fluid border rounded-3 m-2" style="max-height: 250px;" src="@_BTFileService.ConvertByteArrayToFile(project.ImageFileData!, project.ImageFileType!, (int)DefaultImage.ProjectImage)" /></td>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <td>
+                                            <a class="nav-link" asp-controller="Projects" asp-action="AssignPM" asp-route-id="@project.Id">
+                                                Assign PM
+                                            </a>
+                                        </td>
+                                    }
+                                    @*<td><span class="ecommerce-status on-hold">@Html.DisplayFor(modelItem => project.</span></td>*@
+                                </tr>
+                            }
+                        </tbody>
                     </table>
+
                     <hr class="solid mt-5 opacity-4" />
                     <div class="datatable-footer">
                         <div class="row align-items-center justify-content-between mt-3">
@@ -130,3 +135,22 @@
     </div>
     <!-- end: page -->
 </div>
+
+@section Scripts
+    {
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready(function () {
+            let dataTable = $('#projectsTable').DataTable();
+
+            $('.dataTables_filter input')
+                .attr('placeholder', 'Search...')
+                .addClass('form-control rounded-pill');
+
+            $('a.paginate_button')
+                .addClass('btn btn-primary m-1');
+        });
+
+    </script>
+
+    }

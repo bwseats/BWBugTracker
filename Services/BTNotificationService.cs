@@ -14,8 +14,8 @@ namespace BWBugTracker.Services
         private readonly IBTRolesService _rolesService;
 
         public BTNotificationService(ApplicationDbContext context,
-                                     BTEmailService emailService,
-                                     BTRolesService rolesService)
+                                     IEmailSender emailService,
+                                     IBTRolesService rolesService)
         {
             _context = context;
             _emailService = emailService;
@@ -43,7 +43,7 @@ namespace BWBugTracker.Services
         {
             try
             {
-                if (notification != null)
+                if (notification != null && companyId != null)
                 {
                     IEnumerable<string> adminIds = (await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Admin), companyId))!.Select(u => u.Id);
 

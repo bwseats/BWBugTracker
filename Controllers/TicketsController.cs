@@ -51,47 +51,56 @@ namespace BWBugTracker.Controllers
         // GET: Tickets
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Tickets.Where(p => p.Archived == false)
-                                                       .Include(t => t.DeveloperUser)
-                                                       .Include(t => t.Project)
-                                                       .Include(t => t.SubmitterUser)
-                                                       .Include(t => t.TicketPriority)
-                                                       .Include(t => t.TicketStatus)
-                                                       .Include(t => t.TicketType);
+			int companyId = User.Identity!.GetCompanyId();
 
-            return View(await applicationDbContext.ToListAsync());
-        }
+			IEnumerable<Ticket> tickets = await _btTicketService.GetTicketsAsync(companyId);
+
+			return View(tickets);
+		}
         
         public async Task<IActionResult> IndexCopy()
         {
-            var applicationDbContext = _context.Tickets.Where(p => p.Archived == false)
-                                                       .Include(t => t.DeveloperUser)
-                                                       .Include(t => t.Project)
-                                                       .Include(t => t.SubmitterUser)
-                                                       .Include(t => t.TicketPriority)
-                                                       .Include(t => t.TicketStatus)
-                                                       .Include(t => t.TicketType);
+			int companyId = User.Identity!.GetCompanyId();
 
-            return View(await applicationDbContext.ToListAsync());
-        }
+			IEnumerable<Ticket> tickets = await _btTicketService.GetTicketsAsync(companyId);
+
+			return View(tickets);
+		}
         
         public async Task<IActionResult> PortoIndex()
         {
-            var applicationDbContext = _context.Tickets.Where(p => p.Archived == false)
-                                                       .Include(t => t.DeveloperUser)
-                                                       .Include(t => t.Project)
-                                                       .Include(t => t.SubmitterUser)
-                                                       .Include(t => t.TicketPriority)
-                                                       .Include(t => t.TicketStatus)
-                                                       .Include(t => t.TicketType);
+			int companyId = User.Identity!.GetCompanyId();
 
-            return View(await applicationDbContext.ToListAsync());
-        }
+			IEnumerable<Ticket> tickets = await _btTicketService.GetTicketsAsync(companyId);
 
-        public IActionResult PortoDetails()
+			return View(tickets);
+		}
+
+        public async Task<IActionResult> MyTickets()
         {
-            return View();
+            string? userId = _userManager.GetUserId(User);
+
+            IEnumerable<Ticket> tickets = await _btTicketService.GetRecentUserTickets(userId);
+
+            return View(tickets);
         }
+
+        public async Task<IActionResult> PortoDetails(int? id)
+        {
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+			Ticket ticket = await _btTicketService.GetTicketAsync(id);
+
+			if (ticket == null)
+			{
+				return NotFound();
+			}
+
+			return View(ticket);
+		}
 
         // GET: Tickets/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -101,17 +110,9 @@ namespace BWBugTracker.Controllers
                 return NotFound();
             }
 
-            var ticket = await _context.Tickets
-                                       .Include(t => t.DeveloperUser)
-                                       .Include(t => t.Project)
-                                       .Include(t => t.SubmitterUser)
-                                       .Include(t => t.Comments)
-                                       .Include(t => t.TicketPriority)
-                                       .Include(t => t.TicketStatus)
-                                       .Include(t => t.TicketType)
-                                       .FirstOrDefaultAsync(m => m.Id == id);
+			Ticket ticket = await _btTicketService.GetTicketAsync(id);
 
-            if (ticket == null)
+			if (ticket == null)
             {
                 return NotFound();
             }
@@ -151,6 +152,7 @@ namespace BWBugTracker.Controllers
                 ticket.SubmitterUserId = userId;
 
                 ticket.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
+
                 ticket.Updated = DataUtility.GetPostGresDate(DateTime.UtcNow);
 
                 ticket.TicketStatusId = (await _context.TicketStatuses.FirstOrDefaultAsync(s => s.Name == nameof(BTTicketStatuses.New)))!.Id;
@@ -160,21 +162,7 @@ namespace BWBugTracker.Controllers
                 //TODO: add history record
                 int companyId = User.Identity!.GetCompanyId();
 
-                Ticket? newTicket = await _context.Tickets
-                                                  .Include(t => t.Project)
-                                                      .ThenInclude(p => p!.Company)
-                                                  .Include(t => t.Attachments)
-                                                  .Include(t => t.Comments)
-                                                  .Include(t => t.DeveloperUser)
-                                                  .Include(t => t.History)
-                                                  .Include(t => t.SubmitterUser)
-                                                  .Include(t => t.TicketPriority)
-                                                  .Include(t => t.TicketStatus)
-                                                  .Include(t => t.TicketType)
-                                                  .AsNoTracking()
-                                                  .FirstOrDefaultAsync(t => t.Id == ticket.Id && t.Project!.CompanyId == companyId && t.Archived == false);
-
-                //Ticket? newTicket = await _btTicketService.GetTicketAsNoTrackingAsync(ticket.Id, companyId);
+                Ticket? newTicket = await _btTicketService.GetTicketAsNoTrackingAsync(ticket.Id, companyId);
 
                 await _btHistoryService.AddHistoryAsync(null, newTicket, userId);
 
@@ -189,6 +177,7 @@ namespace BWBugTracker.Controllers
                     Title = "A new ticket has been added",
                     Message = $"Ticket '{ticket.Title}' was created by {btUser?.FullName}.",
                     Created = DataUtility.GetPostGresDate(DateTime.Now),
+                    ProjectId = ticket.ProjectId,
                     SenderId = userId,
                     RecipientId = projectManager?.Id,
                     NotificationTypeId = (await _context.NotificationTypes.FirstOrDefaultAsync(n => n.Name == nameof(BTNotificationTypes.Ticket)))!.Id
@@ -225,6 +214,7 @@ namespace BWBugTracker.Controllers
             }
 
             var ticket = await _context.Tickets.FindAsync(id);
+
             if (ticket == null)
             {
                 return NotFound();
@@ -245,6 +235,8 @@ namespace BWBugTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Created,Updated,Archived,ArchivedByProject,ProjectId,TicketTypeId,TicketStatusId,TicketPriorityId,DeveloperUserId,SubmitterUserId")] Ticket ticket)
         {
+            int companyId = User.Identity!.GetCompanyId();
+
             if (id != ticket.Id)
             {
                 return NotFound();
@@ -252,11 +244,9 @@ namespace BWBugTracker.Controllers
 
             if (ModelState.IsValid)
             {
-                int companyId = User.Identity!.GetCompanyId();
-                
                 string? userId = _userManager.GetUserId(User);
                 
-                Ticket oldTicket = await _btTicketService.GetTicketAsNoTrackingAsync(ticket.Id);
+                Ticket oldTicket = await _btTicketService.GetTicketAsNoTrackingAsync(id, companyId);
 
                 try
                 {
@@ -278,7 +268,7 @@ namespace BWBugTracker.Controllers
                     }
                 }
 
-                Ticket newTicket = await _btTicketService.GetTicketAsNoTrackingAsync(ticket.Id);
+                Ticket newTicket = await _btTicketService.GetTicketAsNoTrackingAsync(id, companyId);
 
                 await _btHistoryService.AddHistoryAsync(oldTicket, newTicket, userId);
 
@@ -329,15 +319,9 @@ namespace BWBugTracker.Controllers
                 return NotFound();
             }
 
-            var ticket = await _context.Tickets
-                .Include(t => t.DeveloperUser)
-                .Include(t => t.Project)
-                .Include(t => t.SubmitterUser)
-                .Include(t => t.TicketPriority)
-                .Include(t => t.TicketStatus)
-                .Include(t => t.TicketType)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (ticket == null)
+			Ticket ticket = await _btTicketService.GetTicketAsync(id);
+
+			if (ticket == null)
             {
                 return NotFound();
             }
@@ -354,14 +338,17 @@ namespace BWBugTracker.Controllers
             {
                 return Problem("Entity set 'ApplicationDbContext.Tickets'  is null.");
             }
-            var ticket = await _context.Tickets.FindAsync(id);
-            if (ticket != null)
+
+			Ticket ticket = await _btTicketService.GetTicketAsync(id);
+
+			if (ticket != null)
             {
                 ticket.Archived = true;
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+			await _btTicketService.UpdateTicketAsync(ticket!);
+
+			return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -400,14 +387,14 @@ namespace BWBugTracker.Controllers
             {
                 try
                 {
-                    ticketAttachment.FileData = await _btFileService.ConvertFileToByteArrayAsync(ticketAttachment.FormFile);
-                    //ticketAttachment.FormFile = ticketAttachment.FormFile.FileName;
-                    //ticketAttachment.FileType = ticketAttachment.FormFile.ContentType;
+					ticketAttachment.FileData = await _btFileService.ConvertFileToByteArrayAsync(ticketAttachment.FormFile);
+					ticketAttachment.FileName = ticketAttachment.FormFile.FileName;
+					ticketAttachment.FileType = ticketAttachment.FormFile.ContentType;
 
-                    //ticketAttachment.Created = DateTimeOffset.Now;
-                    //ticketAttachment.UserId = _userManager.GetUserId(User);
+					ticketAttachment.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
+					ticketAttachment.BTUserId = _userManager.GetUserId(User);
 
-                    await _btTicketService.AddTicketAttachmentAsync(ticketAttachment);
+					await _btTicketService.AddTicketAttachmentAsync(ticketAttachment);
 
                     await _btHistoryService.AddHistoryAsync(ticketAttachment.TicketId, nameof(TicketAttachment), ticketAttachment.BTUserId);
 
@@ -426,10 +413,21 @@ namespace BWBugTracker.Controllers
 
             }
 
-            return RedirectToAction("Details", new { id = ticketAttachment.TicketId, message = statusMessage });
+            return RedirectToAction("PortoDetails", new { id = ticketAttachment.TicketId, message = statusMessage });
         }
 
-        private bool TicketExists(int id)
+		public async Task<IActionResult> ShowFile(int id)
+		{
+			TicketAttachment ticketAttachment = await _btTicketService.GetTicketAttachmentByIdAsync(id);
+			string fileName = ticketAttachment.FileName!;
+			byte[] fileData = ticketAttachment.FileData!;
+			string ext = Path.GetExtension(fileName).Replace(".", "");
+
+			Response.Headers.Add("Content-Disposition", $"inline; filename={fileName}");
+			return File(fileData, $"application/{ext}");
+		}
+
+		private bool TicketExists(int id)
         {
             return (_context.Tickets?.Any(e => e.Id == id)).GetValueOrDefault();
         }
@@ -473,7 +471,7 @@ namespace BWBugTracker.Controllers
 
             if (model.DeveloperId != null)
             {
-                Ticket oldTicket = await _btTicketService.GetTicketAsNoTrackingAsync(model.Ticket?.Id);
+                Ticket oldTicket = await _btTicketService.GetTicketAsNoTrackingAsync(model.Ticket?.Id, companyId);
 
                 try
                 {
@@ -487,7 +485,7 @@ namespace BWBugTracker.Controllers
                     throw;
                 }
 
-                Ticket newTicket = await _btTicketService.GetTicketAsNoTrackingAsync(model.Ticket?.Id);
+                Ticket newTicket = await _btTicketService.GetTicketAsNoTrackingAsync(model.Ticket?.Id, companyId);
 
                 await _btHistoryService.AddHistoryAsync(oldTicket, newTicket, userId);
 

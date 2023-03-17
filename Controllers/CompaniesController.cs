@@ -51,7 +51,8 @@ namespace BWBugTracker.Controllers
             }
 
             var company = await _context.Companies
-                .FirstOrDefaultAsync(m => m.Id == id);
+                                        .FirstOrDefaultAsync(m => m.Id == id);
+
             if (company == null)
             {
                 return NotFound();
@@ -91,6 +92,7 @@ namespace BWBugTracker.Controllers
             }
 
             var company = await _context.Companies.FindAsync(id);
+
             if (company == null)
             {
                 return NotFound();
@@ -185,24 +187,27 @@ namespace BWBugTracker.Controllers
             int companyId = User.Identity!.GetCompanyId();
 
             // get all company users
-            IEnumerable<BTUser>? btUsers = await _context.Users
-                                                  .Where(u => u.CompanyId == companyId)
-                                                  .ToListAsync();
+            IEnumerable<BTUser>? btUsers = await _companyService.GetMembersAsync(companyId);
 
-            // loop over the users to populate an instance of the viewmodel
-            foreach (BTUser btUser in btUsers)
+			// loop over the users to populate an instance of the viewmodel
+			foreach (BTUser btUser in btUsers)
             {
-                // instantiate single viewmodel
-                ManageUserRolesViewModel viewModel = new()
-                {
-                    BTUser = btUser,
-                    Roles = new MultiSelectList(await _rolesService.GetRolesAsync(), "Id", "Name")
-                };
+				IEnumerable<string> currentRoles = await _rolesService.GetUserRolesAsync(btUser);
 
-                // add viewmodel to the model list
-                viewModelList.Add(viewModel);
+				// instantiate single viewModel
+				ManageUserRolesViewModel viewModel = new()
+				{
+					BTUser = btUser,
 
-            }
+					// use _rolesService to help populate the viewmodel instance 
+					// create multiselect
+					Roles = new MultiSelectList(await _rolesService.GetRolesAsync(), "Name", "Name", currentRoles)
+				};
+
+				// add viewModel to model list
+				viewModelList.Add(viewModel);
+
+			}
 
             // return the model to the view
             return View(viewModelList);
