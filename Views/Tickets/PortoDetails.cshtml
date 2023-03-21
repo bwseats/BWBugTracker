@@ -1,37 +1,35 @@
 ﻿@model BWBugTracker.Models.Ticket
 
 @inject BWBugTracker.Services.Interfaces.IBTTicketService _btTicketService
+@inject BWBugTracker.Services.Interfaces.IBTFileService _btFileService
 
 <div class="page-header">
     <h2>Tickets</h2>
 </div>
 <form class="order-details action-buttons-fixed" method="post">
-    <div class="row">
-        <div class="col-xl-4 mb-4 mb-xl-0">
-            <div>
-                <h1 class="text-dark">@Model.Title</h1>
-            </div>
+    <div class="row mb-4">
+        <div class="col-12 mb-4 mb-xl-0">
             <div class="card card-modern">
                 <div class="card-header">
-                    <h2 class="card-title">Ticket Details</h2>
+                    <h1 class="card-title">@Model.Title</h1>
                 </div>
                 <div class="card-body">
                     <div class="form-row">
                         <div class="form-group col mb-3">
-
+                            <p>@Model.Description</p>
                         </div>
                     </div>
                 </div>
             </div>
 
         </div>
-        <div class="col-xl-8">
+        @*<div class="col-xl-8 mb-4 mb-xl-0">
 
             <div class="card card-modern">
                 <div class="card-header">
                     <h2 class="card-title">Description</h2>
                 </div>
-                <div class="card-body">
+                <div class="card-body mb-4">
                     <div class="row">
                         <div class="col-xl-auto me-xl-5 pe-xl-5 mb-4 mb-xl-0">
                             <p>@Model.Description</p>
@@ -40,48 +38,32 @@
                 </div>
             </div>
 
-        </div>
+        </div>*@
     </div>
     <div class="row">
         <div class="col">
 
             <div class="card card-modern">
                 <div class="card-header">
-                    <h2 class="card-title">Order Notes</h2>
+                    <h2 class="card-title">Ticket History</h2>
                 </div>
-                <div class="card-body">
+                <div class="card-body mb-4">
                     <div class="ecommerce-timeline mb-3">
                         <div class="ecommerce-timeline-items-wrapper">
-                            <div class="ecommerce-timeline-item">
-                                <small>added on June 26, 2020 at 4:01 pm by admin - <a href="#" class="text-color-danger">Delete note</a></small>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas hendrerit augue at leo viverra, aliquam egestas lectus laoreet. Donec vehicula vestibulum ipsum, tincidunt ultrices elit suscipit ac. Sed eget risus laoreet, varius nibh id, luctus ligula. Nulla facilisi</p>
-                            </div>
-                            <div class="ecommerce-timeline-item">
-                                <small>added on June 26, 2020 at 4:01 pm by admin - <a href="#" class="text-color-danger">Delete note</a></small>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas hendrerit augue at leo viverra, aliquam egestas lectus laoreet. Donec vehicula vestibulum ipsum, tincidunt ultrices elit suscipit ac. Sed eget risus laoreet, varius nibh id, luctus ligula. Nulla facilisi</p>
-                            </div>
-                            <div class="ecommerce-timeline-item">
-                                <small>added on June 26, 2020 at 4:01 pm by admin - <a href="#" class="text-color-danger">Delete note</a></small>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas hendrerit augue at leo viverra, aliquam egestas lectus laoreet. Donec vehicula vestibulum ipsum, tincidunt ultrices elit suscipit ac. Sed eget risus laoreet, varius nibh id, luctus ligula. Nulla facilisi</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col pb-1 mb-3">
-                            <label>Add Note</label>
-                            <textarea class="form-control form-control-modern" name="orderAddNote" rows="6"></textarea>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col">
-                            <a href="#" class="cancel-button btn btn-light btn-px-4 py-3 border font-weight-semibold text-color-dark text-3">Add Note</a>
+                            @foreach (TicketHistory history in Model.History.OrderByDescending(h => h.Created))
+                            {
+                                <div class="ecommerce-timeline-item">
+                                    <small>added on @history.Created</small>
+                                    <p>@history.Description</p>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
-                <div class="col-md-8 col col-cols-2 mt-5 ">
-                    <div class="col">
-                        <div class="bg-secondary">
-                            <div class="card m-1 p-2">
+                <div class="row row-cols-2">
+                    <div class="col-12 col-md-8">
+                        <div>
+                            <div class="card">
                                 <div class="card-header">
                                     <h2>Comments</h2>
                                 </div>
@@ -89,34 +71,26 @@
                                     <form asp-controller="Tickets" asp-action="AddTicketComment" method="post">
                                         <input type="hidden" asp-for="Id" name="TicketId" />
                                         <div class="row row--10">
-                                            @if (User.Identity!.IsAuthenticated)
-                                            {
-                                                <div class="col-12">
+                                            <div class="comment-respond">
+                                                <h4 class="title">Post a comment</h4>
+                                                <form asp-action="AddTicketComment" asp-controller="Tickets" method="post">
+                                                    <input type="hidden" asp-for="Id" name="TicketId" />
                                                     <div class="form-group">
-                                                        <label for="message">Leave a Comment</label>
-                                                        <textarea id="Body" name="Body"></textarea>
+                                                        <textarea class="editor w-100" id="message" name="Comment"></textarea>
                                                     </div>
-                                                </div>
-                                                <div class="col-lg-12">
-                                                    <div class="form-submit cerchio">
-                                                        <input type="submit" class="axil-button button-rounded" value="Post Comment">
+                                                    <div class="col-lg-12">
+                                                        <div class="form-submit cerchio text-end">
+                                                            <button type="submit" class="mt-1 btn btn-primary" value="Post Comment">Post Comment</button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <div class="col-lg-12">
-                                                    <div class="form-submit cerchio">
-                                                        <a href="/Identity/Account/Login" class="axil-button button-rounded">Login to Post Comment</a>
-                                                    </div>
-                                                </div>
-                                            }
+                                                </form>
+                                            </div>
                                         </div>
                                     </form>
                                     <hr />
                                     <h6>Comments</h6>
                                     <ul class="right_chat list-unstyled mb-0">
-                                        @*@foreach (TicketComment ticketComment in Model.Comments)
+                                        @foreach (TicketComment ticketComment in Model.Comments)
                                         {
                                             <!-- Start Single Comment  -->
                                             <li class="comment">
@@ -148,7 +122,7 @@
                                                 </div>
                                             </li>
                                             <!-- End Single Comment  -->
-                                        }*@
+                                        }
                                     </ul>
                                 </div>
                                 <div class="card-footer">
@@ -156,45 +130,98 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="bg-secondary">
-                            <div class="card m-1 p-2">
-                                <div class="card-header">
-                                    <h2>Attachments</h2>
-                                </div>
-                                <div class="card-body" style="overflow-y:auto;height:300px;">
+                    <div class="col-12 col-md-4">
+                        <div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="card-header">
+                                        <h4>Attachments</h4>
+                                    </div>
+                                    <div class="card-body" style="overflow-y:auto;">
 
-                                    @* Refer to the Ticket Attachments document for this section *@
-
-                                    @* Ticket attachments part 1 here *@
-
-
-                                    @* Ticket attachments part 2 here *@
-
-                                </div>
-                                <div class="card-footer">
+                                        <div class="row">
+                                            @foreach (TicketAttachment item in Model.Attachments)
+                                            {
+                                                <div class="col col-sm-2">
+                                                    <a asp-action="ShowFile" asp-controller="Tickets" asp-route-Id="@item.Id">
+                                                        <div class="icon">
+                                                            <img src="@_btFileService.GetFileIcon(item.FileName)" style="height:50px;width:50px" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="@item.FileName" />
+                                                        </div>
+                                                    </a>
+                                                    <div style="font-size:x-small">
+                                                        <div class="file-name">
+                                                            <strong>@item.Description</strong>
+                                                        </div>
+                                                        <small>Size: @_btFileService.FormatFileSize(item.FileData.Length) </small>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                        <form asp-action="AddTicketAttachment" asp-controller="Tickets" enctype="multipart/form-data" method="post">
+                                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                            <input type="hidden" asp-for="@Model.Id" name="TicketId">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <h5 class="pt-3">File</h5>
+                                                    <label class="btn btn-primary btn-sm">
+                                                        <input asp-for="@Model.Attachments.FirstOrDefault().FormFile" type="file" class="form-control-file" />
+                                                    </label>
+                                                </div>
+                                                <div class="col-10">
+                                                    <h5 class="pt-3">Description</h5>
+                                                    <label>
+                                                        <input asp-for="@Model.Attachments.FirstOrDefault().Description" type="text" class="form-control" />
+                                                    </label>
+                                                </div>
+                                                <div class="col-2">
+                                                    <div class="form-submit cerchio text-end">
+                                                        <button type="submit" class="mt-5 btn btn-primary">Add</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
     <div class="row action-buttons">
         <div class="col-12 col-md-auto">
             <button type="submit" class="submit-button btn btn-primary btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1" data-loading-text="Loading...">
-                <i class="bx bx-save text-4 me-2"></i> Save Order
+                <i class="bx bx-save text-4 me-2"></i> Save Ticket
             </button>
         </div>
         <div class="col-12 col-md-auto px-md-0 mt-3 mt-md-0">
-            <a href="ecommerce-orders-list.html" class="cancel-button btn btn-light btn-px-4 py-3 border font-weight-semibold text-color-dark text-3">Cancel</a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="cancel-button btn btn-light btn-px-4 py-3 border font-weight-semibold text-color-dark text-3">Edit</a>
         </div>
         <div class="col-12 col-md-auto ms-md-auto mt-3 mt-md-0 ms-auto">
-            <a href="#" class="delete-button btn btn-danger btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1">
-                <i class="bx bx-trash text-4 me-2"></i> Delete Order
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="delete-button btn btn-danger btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1">
+                <i class="bx bx-trash text-4 me-2"></i> Delete Ticket
             </a>
         </div>
     </div>
 </form>
+
+@section scripts
+{
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('.editor'), {
+                licenseKey: '',
+            })
+            .then(editor => {
+                window.editor = editor;
+            })
+            .catch(error => {
+                console.error('Oops, something went wrong!');
+                console.error('Please, report the following error on https://github.com/ckeditor/ckeditor5/issues with the build id and the error stack trace:');
+                console.warn('Build id: xx09iayzufkn-lkt434h3lx2z');
+                console.error(error);
+            });
+    </script>
+}

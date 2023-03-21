@@ -1,5 +1,7 @@
 ﻿@model IEnumerable<BWBugTracker.Models.Ticket>
 
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css">
+
 <header class="page-header">
     <h2>Tickets</h2>
 
@@ -21,7 +23,7 @@
     </div>
 </header>
 
-<!-- start: page -->
+@*<!-- start: page -->
 <div class="row row-gutter-sm mb-5">
     <div class="col-lg-3-5 col-xl-4-5">
         <div class="row row-gutter-sm">
@@ -40,4 +42,55 @@
             }
         </div>
     </div>
+</div>*@
+
+<div class="row">
+	<div class="col">
+		<section class="card">
+			<header class="card-header">
+				<div class="card-actions">
+					<a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+					<a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
+				</div>
+
+				<h2 class="card-title">All Tickets</h2>
+			</header>
+			<div class="card-body">
+
+				<table class="table table-bordered table-striped mb-0" id="ticketsTable">
+
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Description</th>
+							<th>Project</th>
+							<th>Options</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (Ticket ticket in Model)
+						{
+							<tr>
+								<td>@ticket.Title</td>
+								<td>@ticket.Description</td>
+								<td>@ticket.Project?.Name</td>
+								<td><a asp-action="PortoDetails" asp-route-id="@ticket.Id" class="btn btn-primary">Details</a></td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</section>
+	</div>
 </div>
+
+@section scripts
+{
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+    <script>
+        $(document).ready(function () {
+            let dataTable = $('#ticketsTable').DataTable();
+        });
+
+    </script>
+}

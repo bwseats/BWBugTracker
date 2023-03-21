@@ -22,18 +22,20 @@ namespace BWBugTracker.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<BTUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+		private readonly IConfiguration _configuration; 
 
-        public LoginModel(SignInManager<BTUser> signInManager, ILogger<LoginModel> logger)
-        {
-            _signInManager = signInManager;
+		public LoginModel(SignInManager<BTUser> signInManager, ILogger<LoginModel> logger, IConfiguration configuration)
+		{
+			_signInManager = signInManager;
 			_logger = logger;
-        }
+			_configuration = configuration;
+		}
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [BindProperty]
+		/// <summary>
+		///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+		///     directly from your code. This API may change or be removed in future releases.
+		/// </summary>
+		[BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
@@ -102,13 +104,28 @@ namespace BWBugTracker.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null, string demoEmail = null)
         {
             returnUrl ??= Url.Content("~/Home/PortoIndex");
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+			if (!string.IsNullOrEmpty(demoEmail))
+			{
+				string email = _configuration[demoEmail] ?? Environment.GetEnvironmentVariable(demoEmail);
+				string password = _configuration["DemoUserPassword"] ?? Environment.GetEnvironmentVariable("DemoUserPassword");
+				var result = await _signInManager.PasswordSignInAsync(email, password, false, lockoutOnFailure: false);
+				if (result.Succeeded)
+				{
+					_logger.LogInformation("Demo User logged in.");
+					return LocalRedirect(returnUrl);
+				}
+				else
+				{
+					ModelState.AddModelError(string.Empty, "Invalid demo login attempt.");
+					return Page();
+				}
+			}
 
-            if (ModelState.IsValid)
+			if (ModelState.IsValid)
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true

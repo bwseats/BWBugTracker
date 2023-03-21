@@ -4,7 +4,31 @@
 
 @inject IBTFileService _BTFileService
 
-<link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css">
+<!-- Web Fonts  -->
+<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
+
+<!-- Vendor CSS -->
+<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="vendor/animate/animate.compat.css">
+<link rel="stylesheet" href="vendor/font-awesome/css/all.min.css" />
+<link rel="stylesheet" href="vendor/boxicons/css/boxicons.min.css" />
+<link rel="stylesheet" href="vendor/magnific-popup/magnific-popup.css" />
+<link rel="stylesheet" href="vendor/bootstrap-datepicker/css/bootstrap-datepicker3.css" />
+<link rel="stylesheet" href="vendor/select2/css/select2.css" />
+<link rel="stylesheet" href="vendor/select2-bootstrap-theme/select2-bootstrap.min.css" />
+<link rel="stylesheet" href="vendor/datatables/media/css/dataTables.bootstrap5.css" />
+
+<!-- Theme CSS -->
+<link rel="stylesheet" href="css/theme.css" />
+
+<!-- Skin CSS -->
+<link rel="stylesheet" href="css/skins/default.css" />
+
+<!-- Theme Custom CSS -->
+<link rel="stylesheet" href="css/custom.css">
+
+<!-- Head Libs -->
+<script src="vendor/modernizr/modernizr.js"></script>
 
 <div class="page-header">
     <h2>Tickets</h2>
@@ -18,55 +42,41 @@
                 <div class="datatables-header-footer-wrapper">
                     <div class="datatable-header">
                         <div class="row align-items-center mb-3">
-
                             <div class="col-12 col-lg-auto mb-3 mb-lg-0">
                                 <a asp-action="Create" class="btn btn-primary btn-md font-weight-semibold btn-py-2 px-4">+ Create Ticket</a>
                             </div>
-                            @*<div class="col-12 col-lg-auto ps-lg-1">
-                                <div class="search search-style-1 search-style-1-lg mx-lg-auto">
-                                    <div class="input-group">
-                                        <input type="text" class="search-term form-control" name="search-term" id="search-term" placeholder="Search Order">
-                                        <button class="btn btn-default" type="submit"><i class="bx bx-search"></i></button>
-                                    </div>
-                                </div>
-                            </div>*@
                         </div>
                     </div>
 
-                    <table id="ticketsTable" class="table table-ecommerce-simple table-borderless table-striped mb-0" style="min-width: 640px;">
+                    <table id="ticketsTable" class="table table-ecommerce-simple table-borderless table-striped mb-2" style="min-width: 640px;">
                         <thead>
                             <tr>
-                                <th width="8%">Name</th>
-                                <th width="28%">Description</th>
-                                <th width="15%">Project</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Project</th>
+                                <th>Created Date</th>
+                                <th>Options</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (Ticket ticket in Model)
                             {
                                 <tr>
-                                    <td><a asp-action="PortoDetails" asp-route-id="@ticket.Id"><strong>@ticket.Title</strong></a></td>
-                                    <td><a asp-action="PortoDetails" asp-route-id="@ticket.Id"><strong>@ticket.Description</strong></a></td>
-                                    <td><a asp-action="PortoDetails" asp-route-id="@ticket.Id"><strong>@ticket.Project!.Name</strong></a></td>
+                                    <td>@ticket.Title</td>
+                                    <td>@ticket.Description</td>
+                                    <td>@ticket.Project.Name</td>
+                                    <td>@ticket.Created</td>
+                                    <td class="d-flex" style="justify-content:space-evenly">
+                                        <a asp-action="PortoDetails" asp-route-id="@ticket.Id" class="btn btn-primary">Details</a>
+                                        <a asp-action="PortoEdit" asp-route-id="@ticket.Id" class="btn btn-primary">Edit</a>
+                                        <a asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-primary">Delete</a>
+                                    </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
-
-                    <hr class="solid mt-5 opacity-4">
                     <div class="datatable-footer">
                         <div class="row align-items-center justify-content-between mt-3">
-                            <div class="col-md-auto order-1 mb-3 mb-lg-0">
-                                <div class="d-flex align-items-stretch">
-                                    <div class="d-grid gap-3 d-md-flex justify-content-md-end me-4">
-                                        <select class="form-control select-style-1 bulk-action" name="bulk-action" style="min-width: 170px;">
-                                            <option value="" selected>Bulk Actions</option>
-                                            <option value="delete">Delete</option>
-                                        </select>
-                                        <a href="ecommerce-orders-detail.html" class="bulk-action-apply btn btn-light btn-px-4 py-3 border font-weight-semibold text-color-dark text-3">Apply</a>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="col-lg-auto text-center order-3 order-lg-2">
                                 <div class="results-info-wrapper"></div>
                             </div>
@@ -79,7 +89,6 @@
             </div>
         </div>
     </div>
-    <!-- end: page -->
 </div>
 
 @section Scripts
@@ -98,5 +107,42 @@
         });
 
     </script>
+
+    <!-- Vendor -->
+    <script src="vendor/jquery/jquery.js"></script>
+    <script src="vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
+    <script src="vendor/popper/umd/popper.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="vendor/common/common.js"></script>
+    <script src="vendor/nanoscroller/nanoscroller.js"></script>
+    <script src="vendor/magnific-popup/jquery.magnific-popup.js"></script>
+    <script src="vendor/jquery-placeholder/jquery.placeholder.js"></script>
+
+    <!-- Specific Page Vendor -->
+    <script src="vendor/select2/js/select2.js"></script>
+    <script src="vendor/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script src="vendor/datatables/media/js/dataTables.bootstrap5.min.js"></script>
+    <script src="vendor/datatables/extras/TableTools/Buttons-1.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.bootstrap4.min.js"></script>
+    <script src="vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.html5.min.js"></script>
+    <script src="vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.print.min.js"></script>
+    <script src="vendor/datatables/extras/TableTools/JSZip-2.5.0/jszip.min.js"></script>
+    <script src="vendor/datatables/extras/TableTools/pdfmake-0.1.32/pdfmake.min.js"></script>
+    <script src="vendor/datatables/extras/TableTools/pdfmake-0.1.32/vfs_fonts.js"></script>
+
+    <!-- Theme Base, Components and Settings -->
+    <script src="js/theme.js"></script>
+
+    <!-- Theme Custom -->
+    <script src="js/custom.js"></script>
+
+    <!-- Theme Initialization Files -->
+    <script src="js/theme.init.js"></script>
+
+    <!-- Examples -->
+    <script src="js/examples/examples.datatables.default.js"></script>
+    <script src="js/examples/examples.datatables.row.with.details.js"></script>
+    <script src="js/examples/examples.datatables.tabletools.js"></script>
 
     }

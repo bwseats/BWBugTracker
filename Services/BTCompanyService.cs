@@ -33,6 +33,21 @@ namespace BWBugTracker.Services
             }
         }
 
+        public async Task<IEnumerable<Company>> GetRecentCompaniesAsync()
+        {
+            try
+            {
+                IEnumerable<Company> companies = await _context.Companies.ToListAsync();
+
+                return companies;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public async Task<List<BTUser>> GetMembersAsync(int? companyId)
         {
             try

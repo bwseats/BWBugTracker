@@ -207,8 +207,9 @@ namespace BWBugTracker.Controllers
 			return View(project);
 		}
 
-        // GET: Projects/Create
-        public async Task<IActionResult> Create()
+		// GET: Projects/Create
+		[Authorize(Roles = "Admin, ProjectManager")]
+		public async Task<IActionResult> Create()
         {
 
             IEnumerable<ProjectPriority> priorities = await _projectService.GetProjectPrioritiesAsync();
@@ -223,7 +224,8 @@ namespace BWBugTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageFormFile,ImageFileData,ImageFileType,Archived,CompanyId")] Project project)
+		[Authorize(Roles = "Admin, ProjectManager")]
+		public async Task<IActionResult> Create([Bind("Id,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageFormFile,ImageFileData,ImageFileType,Archived,CompanyId")] Project project)
         {
             ModelState.Remove("CompanyId");
 
@@ -254,8 +256,9 @@ namespace BWBugTracker.Controllers
             return View(project);
         }
 
-        // GET: Projects/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+		// GET: Projects/Edit/5
+		[Authorize(Roles = "Admin, ProjectManager")]
+		public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
@@ -280,7 +283,8 @@ namespace BWBugTracker.Controllers
         // POST: Projects/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageFormFile,ImageFileData,ImageFileType,Archived")] Project project)
+		[Authorize(Roles = "Admin, ProjectManager")]
+		public async Task<IActionResult> Edit(int id, [Bind("Id,CompanyId,Name,Description,Created,StartDate,EndDate,ProjectPriorityId,ImageFormFile,ImageFileData,ImageFileType,Archived")] Project project)
         {
             if (id != project.Id)
             {
@@ -325,8 +329,9 @@ namespace BWBugTracker.Controllers
             return View(project);
         }
 
-        // GET: Projects/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+		// GET: Projects/Delete/5
+		[Authorize(Roles = "Admin, ProjectManager")]
+		public async Task<IActionResult> Delete(int? id)
         {
             try
             {

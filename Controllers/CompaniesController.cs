@@ -13,10 +13,12 @@ using Microsoft.AspNetCore.Identity;
 using BWBugTracker.Services;
 using BWBugTracker.Services.Interfaces;
 using BWBugTracker.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BWBugTracker.Controllers
 {
-    public class CompaniesController : Controller
+	[Authorize(Roles = "Admin, ProjectManager")]
+	public class CompaniesController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<BTUser> _userManager;
@@ -34,16 +36,16 @@ namespace BWBugTracker.Controllers
             _companyService = companyService;
         }
 
-        // GET: Companies
-        public async Task<IActionResult> Index()
-        {
-              return _context.Companies != null ? 
-                          View(await _context.Companies.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Companies'  is null.");
-        }
+		// GET: Companies
+		public async Task<IActionResult> Index()
+		{
+			IEnumerable<Company> companies = await _companyService.GetRecentCompaniesAsync();
 
-        // GET: Companies/Details/5
-        public async Task<IActionResult> Details(int? id)
+			return View(companies);
+		}
+
+		// GET: Companies/Details/5
+		public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Companies == null)
             {

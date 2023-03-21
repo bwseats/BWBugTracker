@@ -13,7 +13,10 @@ namespace BWBugTracker.Services.Interfaces
         public Task UpdateProjectAsync(Project project);
         public Task ArchiveProjectAsync(Project project);
         public Task<List<Project>> GetAllProjectsByCompanyIdAsync(int companyId);
-        public Task<List<Project>> GetArchivedProjectsByCompanyIdAsync(int companyId);
+
+        public Task<List<Project>> GetAllProjectsByPriorityAsync(int companyId, string priority);
+
+		public Task<List<Project>> GetArchivedProjectsByCompanyIdAsync(int companyId);
 
         #endregion
 

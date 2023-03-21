@@ -167,6 +167,16 @@ namespace BWBugTracker.Services
             throw new NotImplementedException();
         }
 
+        public async Task<List<Project>> GetAllProjectsByPriorityAsync(int companyId, string priority)
+        {
+            List<Project> projects = await GetAllProjectsByCompanyIdAsync(companyId);
+
+            int priorityId = await LookupProjectPriorityIdAsync(priority);
+
+            return projects.Where(p => p.ProjectPriorityId == priorityId).ToList();
+
+        }
+
         public Task<List<Project>> GetArchivedProjectsByCompanyIdAsync(int? companyId)
         {
             throw new NotImplementedException();
@@ -323,7 +333,12 @@ namespace BWBugTracker.Services
 
 		public async Task<List<Project>> GetAllProjectsByCompanyIdAsync(int companyId)
 		{
-			List<Project> projects = await _context.Projects.Where(p => p.CompanyId == companyId).ToListAsync();
+			List<Project> projects = await _context.Projects
+                                                   .Where(p => p.CompanyId == companyId)
+                                                   .Include(p => p.Tickets)
+                                                   .Include(p => p.ProjectPriority)
+                                                   .Include(p => p.Members)
+                                                   .ToListAsync();
 
             return projects;
 		}
@@ -332,6 +347,13 @@ namespace BWBugTracker.Services
 		{
 			throw new NotImplementedException();
 		}
+
+        public async Task<int> LookupProjectPriorityIdAsync(string priority)
+        {
+            int priorityId = (await _context.ProjectPriorities.FirstOrDefaultAsync(p => p.Name == priority))!.Id;
+
+            return priorityId;
+        }
 
 		public bool ProjectExists(int? projectId)
 		{

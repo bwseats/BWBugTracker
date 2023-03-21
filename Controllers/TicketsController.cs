@@ -194,7 +194,7 @@ namespace BWBugTracker.Controllers
                     await _btNotificationService.SendAdminEmailNotificationAsync(notification, "New Project Ticket Added", companyId);
                 }
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("PortoIndex", "Home");
             }
 
             ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.DeveloperUserId);
@@ -289,18 +289,18 @@ namespace BWBugTracker.Controllers
                     NotificationTypeId = (await _context.NotificationTypes.FirstOrDefaultAsync(n => n.Name == nameof(BTNotificationTypes.Ticket)))!.Id
                 };
 
-                if (projectManager != null)
-                {
-                    await _btNotificationService.AddNotificationAsync(notification);
-                    await _btNotificationService.SendEmailNotificationAsync(notification, "New Ticket Added");
-                }
-                else
-                {
-                    await _btNotificationService.AdminNotificationAsync(notification, companyId);
-                    await _btNotificationService.SendAdminEmailNotificationAsync(notification, "New Project Ticket Added", companyId);
-                }
+                //if (projectManager != null)
+                //{
+                //    await _btNotificationService.AddNotificationAsync(notification);
+                //    await _btNotificationService.SendEmailNotificationAsync(notification, "New Ticket Added");
+                //}
+                //else
+                //{
+                //    await _btNotificationService.AdminNotificationAsync(notification, companyId);
+                //    await _btNotificationService.SendAdminEmailNotificationAsync(notification, "New Project Ticket Added", companyId);
+                //}
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(PortoDetails));
             }
 
             ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "Name", ticket.DeveloperUserId);
@@ -371,10 +371,10 @@ namespace BWBugTracker.Controllers
 
                 await _btHistoryService.AddHistoryAsync(ticketComment.TicketId, nameof(TicketComment), ticketComment.BTUserId);
 
-                return RedirectToAction("Details", new { id = ticketId });
+                return RedirectToAction("PortoDetails", new { id = ticketId });
             }
 
-            return RedirectToAction(nameof(Details));
+            return RedirectToAction(nameof(PortoDetails));
         }
 
         [HttpPost]
