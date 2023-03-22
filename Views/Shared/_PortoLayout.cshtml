@@ -78,17 +78,7 @@
 			</div>
 
 			<!-- start: search & user box -->
-			<div class="header-right">
-
-				<form action="pages-search-results.html" class="search nav-form">
-					<div class="input-group">
-						<input type="text" class="form-control" name="q" id="q" placeholder="Search...">
-						<button class="btn btn-default" type="submit"><i class="bx bx-search"></i></button>
-					</div>
-				</form>
-
-				<span class="separator"></span>
-
+			<div class="header-right d-flex align-items-center">
 				<div id="userbox" class="userbox">
 					<a href="#" data-bs-toggle="dropdown">
 						<figure class="profile-picture">
@@ -107,9 +97,6 @@
 							<li class="divider"></li>
 							<li>
 								<a role="menuitem" tabindex="-1" asp-area="Identity" asp-page="/Account/Manage/Index"><i class="bx bx-user-circle"></i> My Profile</a>
-							</li>
-							<li>
-								<a role="menuitem" tabindex="-1" href="#" data-lock-screen="true"><i class="bx bx-lock"></i> Lock Screen</a>
 							</li>
 							<li>
 								<a role="menuitem" tabindex="-1" asp-area="Identity" asp-page="/Account/Logout"><i class="bx bx-power-off"></i> Logout</a>
@@ -152,7 +139,7 @@
 										<span>Projects</span>
 									</a>
 									<ul class="nav nav-children">
-										@if (User.IsInRole("Admin, ProjectManager"))
+										@if (User.IsInRole("Admin") || User.IsInRole("ProjectManager"))
 										{
 											<li>
 												<a class="nav-link" asp-controller="Projects" asp-action="Create">

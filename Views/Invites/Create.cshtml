@@ -3,8 +3,9 @@
 @{
     ViewData["Title"] = "Create";
 }
-<h1>Create Invite</h1>
-<hr />
+<div class="page-header">
+    <h2>Invite New User</h2>
+</div>
 <div class="col-lg-6 col-md-12">
     <div class="card custom-card">
         <div class="card-body">
@@ -13,7 +14,7 @@
                 <p class="text-muted card-sub-title">Invite a new user to join your Bug Tracker company.</p>
             </div>
             <form asp-action="Create" method="post">
-                <div class="row row-xs align-items-center mg-b-20">
+                <div class="row row-xs align-items-center my-3">
                     <div class="col-md-4">
                         <label class="mg-b-0">Email</label>
                     </div>
@@ -21,7 +22,7 @@
                         <input type="email" asp-for="InviteeEmail" class="form-control" placeholder="Enter email">
                     </div>
                 </div>
-                <div class="row row-xs align-items-center mg-b-20">
+                <div class="row row-xs align-items-center my-3">
                     <div class="col-md-4">
                         <label class="mg-b-0">Firstname</label>
                     </div>
@@ -29,7 +30,7 @@
                         <input type="text" asp-for="InviteeFirstName" class="form-control" placeholder="Enter first name">
                     </div>
                 </div>
-                <div class="row row-xs align-items-center mg-b-20">
+                <div class="row row-xs align-items-center my-3">
                     <div class="col-md-4">
                         <label class="mg-b-0">Lastname</label>
                     </div>
@@ -37,7 +38,7 @@
                         <input type="text" asp-for="InviteeLastName" class="form-control" placeholder="Enter last name">
                     </div>
                 </div>
-                <div class="row row-xs align-items-center mg-b-20">
+                <div class="row row-xs align-items-center my-3">
                     <div class="col-md-4">
                         <label class="mg-b-0">Select Project</label>
                     </div>
@@ -47,7 +48,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="row row-xs align-items-center mg-b-20">
+                <div class="row row-xs align-items-center my-3">
                     <div class="col-md-4">
                         <label class="mg-b-0">Message</label>
                     </div>

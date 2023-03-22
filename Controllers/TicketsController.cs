@@ -15,9 +15,11 @@ using BWBugTracker.Models.Enums;
 using BWBugTracker.Models.ViewModels;
 using X.PagedList;
 using System.ComponentModel.Design;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BWBugTracker.Controllers
 {
+    [Authorize]
     public class TicketsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -355,15 +357,13 @@ namespace BWBugTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddTicketComment([Bind("Id,TicketId,BTUserId,Comment,Created")] TicketComment ticketComment)
         {
-            ModelState.Remove("BTUserId");
 
+            int ticketId = ticketComment.TicketId;
+
+            ModelState.Remove("BTUserId");
             if (ModelState.IsValid)
             {
-                BTUser? btUser = await _userManager.GetUserAsync(User);
-
-                int ticketId = ticketComment.TicketId;
-
-                ticketComment.BTUserId = btUser!.Id;
+                ticketComment.BTUserId = _userManager.GetUserId(User);
 
                 ticketComment.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
 
@@ -374,7 +374,7 @@ namespace BWBugTracker.Controllers
                 return RedirectToAction("PortoDetails", new { id = ticketId });
             }
 
-            return RedirectToAction(nameof(PortoDetails));
+            return RedirectToAction("PortoDetails", new { id = ticketId });
         }
 
         [HttpPost]
@@ -382,6 +382,8 @@ namespace BWBugTracker.Controllers
         public async Task<IActionResult> AddTicketAttachment([Bind("Id,FormFile,Description,TicketId")] TicketAttachment ticketAttachment)
         {
             string statusMessage;
+
+            ModelState.Remove("BTUserId");
 
             if (ModelState.IsValid && ticketAttachment.FormFile != null)
             {
