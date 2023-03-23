@@ -84,11 +84,11 @@
 															</a>
 														</h6>
 														<div class="comment-meta">
-															<div class="time-spent">@ticketComment.Created</div>
+															<p class="time-spent">@ticketComment.Created</p>
 														</div>
 														<div class="comment-text">
 															<p class="b2">
-																@ticketComment.Comment
+																@Html.Raw(@ticketComment.Comment)
 															</p>
 														</div>
 													</div>

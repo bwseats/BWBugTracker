@@ -134,24 +134,18 @@
                     <h2 class="card-title">Members</h2>
                 </div>
                 <div class="card-body">
-                    @if (Model.Members != null)
+                    @foreach (BTUser btUser in Model.Members)
                     {
-                        @foreach (BTUser btUser in Model.Members)
-                        {
-                            <h6 class="commenter">
-                                <a class="hover-flip-item-wrapper" asp-controller="Home" asp-action="Index">
-                                    <span class="hover-flip-item">
-                                        <span data-text="@btUser.FullName">
-                                            @btUser.FullName
-                                        </span>
-                                    </span>
-                                </a>
-                            </h6>
-                        }
+                        <h4 data-text="@btUser.FullName">
+                            @btUser.FullName
+                        </h4>
                     }
-                    <h3 class="mb-3">
-                        There are no members in this project!
-                    </h3>
+                    @if (Model.Members == null)
+                    {
+                        <h3>
+                            There are no members in this project!
+                        </h3>
+                    }
                     <a class="btn btn-primary me-2" asp-action="AssignProjectMembers" asp-route-id="@Model.Id">
                         Assign project members
                     </a>
@@ -186,7 +180,8 @@
 </form>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a class="btn btn-light btn-sm me-2" asp-action="Index">Back to List</a>
+    <a class="btn btn-light btn-sm" asp-action="PortoDetails" asp-route-id="@Model.Id">Back to Details</a>
 </div>
 
 @section Scripts {

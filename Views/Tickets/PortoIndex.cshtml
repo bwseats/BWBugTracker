@@ -30,7 +30,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (Ticket ticket in Model)
+                            @foreach (Ticket ticket in Model.OrderByDescending(m => m.Created))
                             {
                                 <tr>
                                     <td>@ticket.Title</td>
