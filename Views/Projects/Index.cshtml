@@ -33,52 +33,48 @@
                             </div>
                         </div>
                     </div>
-
-                    <table id="projectsTable" class="table table-ecommerce-simple table-borderless table-striped mb-0" style="min-width: 640px;">
-                        <thead>
-                            <tr>
-                                <th width="15%">Project</th>
-                                <th width="30%">Description</th>
-                                <th width="12%">Start Date</th>
-                                <th width="12%">End Date</th>
-                                <th width="12%">Image</th>
-                                @if (User.IsInRole("ProjectManager") || User.IsInRole("Admin"))
-                                {
-                                    <th width="20%">Options</th>
-                                }
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (Project project in Model)
-                            {
+                    <div class="table-responsive">
+                        <table id="projectsTable" class="table table-ecommerce-simple table-borderless dt-responsive table-striped mb-0" style="min-width: 640px;">
+                            <thead>
                                 <tr>
-                                    <td><a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id"><strong>@Html.DisplayFor(modelItem => project.Name)</strong></a></td>
-                                    <td>@Html.DisplayFor(modelItem => project.Description)</td>
-                                    <td>@Html.DisplayFor(modelItem => project.StartDate)</td>
-                                    <td>@Html.DisplayFor(modelItem => project.EndDate)</td>
-                                    <td><img class="img-fluid border rounded-3 m-2" style="max-height: 250px;" src="@_BTFileService.ConvertByteArrayToFile(project.ImageFileData!, project.ImageFileType!, (int)DefaultImage.ProjectImage)" /></td>
-
+                                    <th width="15%">Project</th>
+                                    <th width="30%">Description</th>
+                                    <th width="12%">Start Date</th>
+                                    <th width="12%">End Date</th>
+                                    <th width="12%">Image</th>
                                     @if (User.IsInRole("ProjectManager") || User.IsInRole("Admin"))
                                     {
-                                        <td class="h-100" width="10%">
-                                            
-                                            <span class="row">
+                                        <th width="20%">Options</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (Project project in Model)
+                                {
+                                    <tr>
+                                        <td><a asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id"><strong>@Html.DisplayFor(modelItem => project.Name)</strong></a></td>
+                                        <td>@Html.DisplayFor(modelItem => project.Description)</td>
+                                        <td>@Html.DisplayFor(modelItem => project.StartDate)</td>
+                                        <td>@Html.DisplayFor(modelItem => project.EndDate)</td>
+                                        <td><img class="img-fluid border rounded-3 m-2" style="max-height: 250px;" src="@_BTFileService.ConvertByteArrayToFile(project.ImageFileData!, project.ImageFileType!, (int)DefaultImage.ProjectImage)" /></td>
+
+                                        @if (User.IsInRole("ProjectManager") || User.IsInRole("Admin"))
+                                        {
+                                            <td class="h-100" width="10%">
                                                 @if (User.IsInRole("Admin"))
                                                 {
                                                     <a asp-action="AssignPM" asp-route-id="@project.Id" class="btn btn-primary m-1">Assign PM</a>
                                                 }
                                                 <a asp-action="PortoDetails" asp-route-id="@project.Id" class="btn btn-primary m-1">Details</a>
-                                            </span>
-                                            <span class="row">
                                                 <a asp-action="PortoEdit" asp-route-id="@project.Id" class="btn btn-primary m-1">Edit</a>
                                                 <a asp-action="Delete" asp-route-id="@project.Id" class="btn btn-primary m-1">Delete</a>
-                                            </span>
-                                        </td>
-                                    }
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
 
                     <hr class="solid mt-5 opacity-4" />
                     <div class="datatable-footer">

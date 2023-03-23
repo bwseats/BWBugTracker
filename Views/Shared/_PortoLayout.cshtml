@@ -184,7 +184,7 @@
 										
 									</ul>
 								</li>
-								@*@if (User.IsInRole("Admin"))
+								@if (User.IsInRole("Admin"))
 								{
 									<li class="nav-parent">
 										<a class="nav-link" href="#">
@@ -192,19 +192,40 @@
 											<span>Admin</span>
 										</a>
 										<ul class="nav nav-children">
-											<li>
-												<a class="nav-link" asp-controller="Companies" asp-action="Create">
-													+ Create New Company
+											<li class="nav-parent">
+												<a class="nav-link" href="#">
+													<i class="bx bx-user" aria-hidden="true"></i>
+													<span>Roles</span>
 												</a>
+												<ul class="nav nav-children">
+													<li>
+														<a class="nav-link" asp-controller="Companies" asp-action="ManageUserRoles">
+															Manage Roles
+														</a>
+													</li>
+												</ul>
 											</li>
-											<li>
-												<a class="nav-link" asp-controller="Companies" asp-action="Index">
-													All Companies
+											<li class="nav-parent">
+												<a class="nav-link" href="#">
+													<i class="bx bx-message-alt-add" aria-hidden="true"></i>
+													<span>Invites</span>
 												</a>
+												<ul class="nav nav-children">
+													<li>
+														<a class="nav-link" asp-controller="Invites" asp-action="Create">
+															+ Invite new user
+														</a>
+													</li>
+													<li>
+														<a class="nav-link" asp-controller="Invites" asp-action="PortoIndex">
+															Manage Invites
+														</a>
+													</li>
+												</ul>
 											</li>
 										</ul>
 									</li>
-								}*@
+								}
 							</ul>
 						</nav>
 					</div>

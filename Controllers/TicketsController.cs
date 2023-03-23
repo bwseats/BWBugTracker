@@ -361,6 +361,7 @@ namespace BWBugTracker.Controllers
             int ticketId = ticketComment.TicketId;
 
             ModelState.Remove("BTUserId");
+
             if (ModelState.IsValid)
             {
                 ticketComment.BTUserId = _userManager.GetUserId(User);

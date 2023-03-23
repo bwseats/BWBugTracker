@@ -132,7 +132,7 @@ namespace BWBugTracker.Controllers
 
                 await _projectService.AddMembersToProjectAsync(viewModel.SelectedMembers, viewModel.Project!.Id, companyId);
 
-                return RedirectToAction(nameof(Details), new { id = viewModel.Project!.Id });
+                return RedirectToAction(nameof(PortoDetails), new { id = viewModel.Project!.Id });
             }
 
             ModelState.AddModelError("SelectedMembers", "No users selected. Please select users to add to the project!");
@@ -197,7 +197,7 @@ namespace BWBugTracker.Controllers
 
 			int companyId = User.Identity!.GetCompanyId();
 
-			Project? project = await _projectService.GetProjectAsync(companyId, id.Value);
+			Project? project = await _projectService.GetProjectAsync(id.Value, companyId);
 
 			if (project == null)
 			{
@@ -267,7 +267,7 @@ namespace BWBugTracker.Controllers
 
             int companyId = User.Identity!.GetCompanyId();
 
-            Project? project = await _projectService.GetProjectAsync(companyId, id.Value);
+            Project? project = await _projectService.GetProjectAsync(id.Value, companyId);
 
             if (project == null)
             {

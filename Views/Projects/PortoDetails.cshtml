@@ -1,116 +1,92 @@
 ﻿@model BWBugTracker.Models.Project
 
-@inject BWBugTracker.Services.Interfaces.IBTTicketService _btProjectService
-@inject BWBugTracker.Services.Interfaces.IBTFileService _btFileService
+@using Microsoft.AspNetCore.Identity
+@using BWBugTracker.Services.Interfaces
+@using BWBugTracker.Models.Enums
+
+@inject UserManager<BTUser> UserManager
+@inject IBTRolesService _rolesService
+@inject IBTTicketService _btProjectService
+@inject IBTFileService _btFileService
 
 <div class="page-header">
-    <h2>Tickets</h2>
+    <h2>Project Details</h2>
 </div>
-<form class="order-details action-buttons-fixed" method="post">
-    <div class="row mb-4">
-        <div class="col-12 mb-4 mb-xl-0">
-            <div class="card card-modern">
-                <div class="card-header">
-                    <h1 class="card-title">@Model.Name</h1>
-                </div>
-                <div class="card-body">
-                    <div class="form-row">
-                        <div class="form-group col mb-3">
-                            <p>@Model.Description</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-        </div>
-        @*<div class="col-xl-8 mb-4 mb-xl-0">
-
+<div class="row mb-4">
+    <div class="col-12 col-md-6 mb-4">
         <div class="card card-modern">
-        <div class="card-header">
-        <h2 class="card-title">Description</h2>
-        </div>
-        <div class="card-body mb-4">
-        <div class="row">
-        <div class="col-xl-auto me-xl-5 pe-xl-5 mb-4 mb-xl-0">
-        <p>@Model.Description</p>
-        </div>
-        </div>
-        </div>
-        </div>
-
-        </div>*@
-    </div>
-    <div class="row">
-        <div class="col">
-
-            <div class="card card-modern">
-                <div class="card-header">
-                    <h2 class="card-title">Project Progress</h2>
-                </div>
-                <div class="card col m-1 p-2">
-                    <div class="body">
-                        @* Project Name *@
-                        <h5>@Model.Name</h5>
-                        @* Project Description *@
+            <div class="card-header">
+                <h1 class="card-title">@Model.Name</h1>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group col mb-3">
                         <p>@Model.Description</p>
-                        <div class="progress-container progress-info m-b-25">
-                            <span class="progress-badge" style="font-size:small">Project Status</span>
-                            <div class="progress">
-                                @* Razor code block *@
-                                @{
-                                    var start = Model.StartDate;
-                                    var end = Model.EndDate;
-                                    var today = DateTime.Now;
-                                    var percent = today >= end ? 100 : today < start ? 0 : Math.Round((today.Subtract(start)) / (end.Subtract(start)) * 100);
-                                }
-                                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @percent%;">
-                                    @* Use Progress Bar code variable here *@
-                                    <span class="progress-value">@percent%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card card-modern">
-                <div class="card-header">
-                    <h2 class="card-title">Members</h2>
-                </div>
-                <div class="card col m-1 p-2">
-                    <div class="body">
-                        @foreach (BTUser btUser in Model.Members)
-                        {
-                            <h6 class="commenter">
-                                <a class="hover-flip-item-wrapper" asp-controller="Home" asp-action="Index">
-                                    <span class="hover-flip-item">
-                                        <span data-text="@btUser.FullName">
-                                            @btUser.FullName
-                                        </span>
-                                    </span>
-                                </a>
-                            </h6>
-                        }
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row action-buttons">
-        <div class="col-12 col-md-auto">
-            <button type="submit" class="submit-button btn btn-primary btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1" data-loading-text="Loading...">
-                <i class="bx bx-save text-4 me-2"></i> Save Project
-            </button>
-        </div>
-        <div class="col-12 col-md-auto px-md-0 mt-3 mt-md-0">
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="cancel-button btn btn-light btn-px-4 py-3 border font-weight-semibold text-color-dark text-3">
-                Edit
-            </a>
-        </div>
-        <div class="col-12 col-md-auto ms-md-auto mt-3 mt-md-0 ms-auto">
-            <a asp-action="Delete" asp-route-id="@Model.Id" class="delete-button btn btn-danger btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1">
-                <i class="bx bx-trash text-4 me-2"></i>
-                Delete Project
-            </a>
+    <div class="col-12 col-md-6">
+        <div class="card card-modern">
+            <div class="card-header">
+                <h2 class="card-title">Members</h2>
+            </div>
+            <div class="card-body">
+                @foreach (BTUser btUser in Model.Members)
+                {
+                    <h4 data-text="@btUser.FullName">
+                        @btUser.FullName
+                    </h4>
+                }
+                @if (Model.Members == null)
+                {
+                    <h3>
+                        There are no members in this project!
+                    </h3>
+                }
+            </div>
         </div>
     </div>
-</form>
+</div>
+<div class="row">
+    <div class="col-12 mt-4">
+        <div class="card card-modern">
+            <div class="card-header">
+                <h2 class="card-title">Project Progress</h2>
+            </div>
+            <div class="card-body progress-container progress-info m-b-25">
+                <div class="progress">
+                    @{
+                        var start = Model.StartDate;
+                        var end = Model.EndDate;
+                        var today = DateTime.Now;
+                        var percent = today >= end ? 100 : today < start ? 0 : Math.Round((today.Subtract(start)) / (end.Subtract(start)) * 100);
+                    }
+                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @($"{percent}%")">
+                        <span class="progress-value">@($"{percent}%")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row action-buttons">
+    <div class="col-12 col-md-auto">
+        <button type="submit" class="submit-button btn btn-primary btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1" data-loading-text="Loading...">
+            <i class="bx bx-save text-4 me-2"></i> Save Project
+        </button>
+    </div>
+    <div class="col-12 col-md-auto px-md-0 mt-3 mt-md-0">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="cancel-button btn btn-light btn-px-4 py-3 border font-weight-semibold text-color-dark text-3">
+            Edit
+        </a>
+    </div>
+    <div class="col-12 col-md-auto ms-md-auto mt-3 mt-md-0 ms-auto">
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="delete-button btn btn-danger btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1">
+            <i class="bx bx-trash text-4 me-2"></i>
+            Delete Project
+        </a>
+    </div>
+</div>

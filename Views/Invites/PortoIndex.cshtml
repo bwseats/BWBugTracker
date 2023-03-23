@@ -1,0 +1,81 @@
+﻿@model IEnumerable<BWBugTracker.Models.Invite>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<header class="page-header">
+    <h2>Invites</h2>
+</header>
+
+<!-- start: page -->
+<div class="row">
+    <div class="col">
+
+        <div class="card card-modern">
+            <div class="card-body">
+                <div class="datatables-header-footer-wrapper">
+                    <div class="datatable-header">
+                        <div class="row align-items-center mb-3">
+                            <div class="col-12 col-lg-auto mb-3 mb-lg-0">
+                                <a asp-action="Create" class="btn btn-primary btn-md font-weight-semibold btn-py-2 px-4">+ Invite User</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table id="invitesTable" class="table table-ecommerce-simple table-borderless table-striped mb-2" style="min-width: 640px;">
+                        <thead>
+                            <tr>
+                                <th>Invitee</th>
+                                <th>Invite Date</th>
+                                <th>Join Date</th>
+                                <th>Invitor</th>
+                                <th>Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (Invite invite in Model)
+                            {
+                                <tr>
+                                    <td>@(invite.InviteeFirstName + " " + invite.InviteeLastName)</td>
+                                    <td>@invite.InviteDate</td>
+                                    <td>@invite.JoinDate</td>
+                                    <td>@invite.Invitor.FullName</td>
+                                    <td class="d-flex" style="justify-content:space-evenly">
+                                        <a asp-action="Details" asp-route-id="@invite.Id" class="btn btn-primary">Details</a>
+                                        <a asp-action="Edit" asp-route-id="@invite.Id" class="btn btn-primary">Edit</a>
+                                        <a asp-action="Delete" asp-route-id="@invite.Id" class="btn btn-primary">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <div class="datatable-footer">
+                        <div class="row align-items-center justify-content-between mt-3">
+                            <div class="col-lg-auto text-center order-3 order-lg-2">
+                                <div class="results-info-wrapper"></div>
+                            </div>
+                            <div class="col-lg-auto order-2 order-lg-3 mb-3 mb-lg-0">
+                                <div class="pagination-wrapper"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end: page -->
+
+@section Scripts
+    {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let dataTable = $('#invitesTable').DataTable();
+        });
+
+    </script>
+
+    }

@@ -53,6 +53,18 @@ namespace BWBugTracker.Controllers
             var applicationDbContext = _context.Invites.Include(i => i.Company).Include(i => i.Invitee).Include(i => i.Invitor).Include(i => i.Project);
             return View(await applicationDbContext.ToListAsync());
         }
+        
+        // GET: Invites
+        public async Task<IActionResult> PortoIndex()
+        {
+            var applicationDbContext = _context.Invites
+                                               .Include(i => i.Company)
+                                               .Include(i => i.Invitee)
+                                               .Include(i => i.Invitor)
+                                               .Include(i => i.Project);
+
+            return View(await applicationDbContext.ToListAsync());
+        }
 
         // GET: Invites/Details/5
         public async Task<IActionResult> Details(int? id)

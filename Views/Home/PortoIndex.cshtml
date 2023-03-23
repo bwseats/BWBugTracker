@@ -84,6 +84,13 @@
 				<h2 class="card-title">Projects Stats</h2>
 			</header>
 			<div class="card-body">
+				@if (Model.Projects == null)
+				{
+					<h2>
+						No projects have been created!
+					</h2>
+                    <a class="btn btn-primary" asp-controller="Projects" asp-action="Create">+ Create Project</a>
+				}
 				<table class="table table-responsive-md table-striped mb-0">
 					<thead>
 						<tr>
