@@ -116,8 +116,8 @@ namespace BWBugTracker.Areas.Identity.Pages.Account
 				if (result.Succeeded)
 				{
 					_logger.LogInformation("Demo User logged in.");
-					return LocalRedirect(returnUrl);
-				}
+                    return RedirectToAction("PortoIndex", "Home");
+                }
 				else
 				{
 					ModelState.AddModelError(string.Empty, "Invalid demo login attempt.");
