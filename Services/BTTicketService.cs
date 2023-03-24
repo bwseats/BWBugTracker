@@ -29,7 +29,7 @@ namespace BWBugTracker.Services
             }
         }
 
-        public async Task<Ticket> GetTicketAsync(int? ticketId)
+        public async Task<Ticket> GetTicketAsync(int? ticketId, int? companyId)
         {
 			try
 			{
@@ -43,7 +43,7 @@ namespace BWBugTracker.Services
 											   .Include(t => t.TicketType)
 											   .Include(t => t.History)
 											   .Include(t => t.Attachments)
-											   .FirstOrDefaultAsync(m => m.Id == ticketId);
+											   .FirstOrDefaultAsync(m => m.Id == ticketId && m.SubmitterUser.CompanyId == companyId);
 
 				return ticket!;
 			}

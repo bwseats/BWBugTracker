@@ -89,12 +89,14 @@ namespace BWBugTracker.Controllers
 
         public async Task<IActionResult> PortoDetails(int? id)
         {
+            int companyId = User.Identity!.GetCompanyId();
+
 			if (id == null)
 			{
 				return NotFound();
 			}
 
-			Ticket ticket = await _btTicketService.GetTicketAsync(id);
+			Ticket ticket = await _btTicketService.GetTicketAsync(id, companyId);
 
 			if (ticket == null)
 			{

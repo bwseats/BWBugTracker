@@ -40,7 +40,10 @@
                                     <th>Title</th>
                                     <th>Project</th>
                                     <th>Created Date</th>
-                                    <th>Options</th>
+                                    @if (User.IsInRole("ProjectManager") || User.IsInRole("Admin"))
+                                    {
+                                        <th>Options</th>
+                                    }
                                 </tr>
                             </thead>
                             <tbody>
