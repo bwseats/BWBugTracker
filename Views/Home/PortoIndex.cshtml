@@ -187,8 +187,14 @@
 					<a href="#" class="card-action card-action-toggle" data-card-toggle></a>
 					<a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
 				</div>
-
-				<h2 class="card-title">My Projects</h2>
+				@if (!User.IsInRole("Admin"))
+				{
+					<h2 class="card-title">My Projects</h2>
+				}
+				@if (User.IsInRole("Admin"))
+				{
+					<h2 class="card-title">All Projects</h2>
+				}
 			</header>
 			<div class="card-body">
 				<div class="timeline timeline-simple mt-3 mb-3">
