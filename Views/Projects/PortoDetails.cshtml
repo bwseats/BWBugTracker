@@ -6,57 +6,20 @@
 
 @inject UserManager<BTUser> UserManager
 @inject IBTRolesService _rolesService
-@inject IBTTicketService _btProjectService
+@inject IBTProjectService _btProjectService
 @inject IBTFileService _btFileService
 
 <div class="page-header">
     <h2>Project Details</h2>
 </div>
 
-<div class="row mb-4">
-    <div class="col-12 col-md-6 mb-4">
-        <div class="card card-modern">
-            <div class="card-header">
-                <h1 class="card-title">@Model.Name</h1>
-            </div>
-            <div class="card-body">
-                <div class="form-row">
-                    <div class="form-group col mb-3">
-                        <p>@Model.Description</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-6">
-        <div class="card card-modern">
-            <div class="card-header">
-                <h2 class="card-title">Members</h2>
-            </div>
-            <div class="card-body">
-                @foreach (BTUser btUser in Model.Members)
-                {
-                    <h4 data-text="@btUser.FullName">
-                        @btUser.FullName
-                    </h4>
-                }
-                @if (Model.Members == null)
-                {
-                    <h3>
-                        There are no members in this project!
-                    </h3>
-                }
-            </div>
-        </div>
-    </div>
-</div>
 <div class="row">
-    <div class="col-12 mt-4">
+    <div class="col-12">
         <div class="card card-modern">
             <div class="card-header">
                 <h2 class="card-title">Project Progress</h2>
             </div>
-            <div class="card-body progress-container progress-info m-b-25">
+            <div class="card-body progress-container progress-info">
                 <div class="progress">
                     @{
                         var start = Model.StartDate;
@@ -72,15 +35,78 @@
         </div>
     </div>
 </div>
-<div class="row action-buttons">
-    <div class="col-12 col-md-auto">
-        <button type="submit" class="submit-button btn btn-primary btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1" data-loading-text="Loading...">
-            <i class="bx bx-save text-4 me-2"></i> Save Project
-        </button>
+<div class="row">
+    <div class="col-12 col-md-6 mb-4">
+        <div class="card card-modern h-100">
+            <div class="card-header">
+                <h1 class="card-title">
+                    @Model.Name
+                </h1>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group col mb-3">
+                        <p>
+                            @Html.Raw(Model.Description)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-12 col-md-auto px-md-0 mt-3 mt-md-0">
+    <div class="col-12 col-md-3">
+        <div class="card card-modern h-100">
+            <div class="card-header">
+                <h2 class="card-title">
+                    Members
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+	                <div class="col-12">
+                        @if (Model.Members.Count == 0)
+                        {
+                            <h4>
+                                There are no members in this project!
+                            </h4>
+                        }
+                        @foreach (BTUser btUser in Model.Members)
+                        {
+                            <h4 data-text="@btUser.FullName">
+                                @btUser.FullName
+                            </h4>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-3">
+        <div class="card card-modern h-100">
+            <div class="card-header">
+                <h2 class="card-title">Project Manager</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+	                <div class="col-12">
+                        <h4>
+                            @((await _btProjectService.GetProjectManagerAsync(Model.Id))?.FullName ?? "Unassigned")
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row action-buttons">
+    <div class="col-12 col-md-auto px-md-0 mt-3 mx-1 ms-2 mt-md-0">
         <a asp-action="Edit" asp-route-id="@Model.Id" class="cancel-button btn btn-light btn-px-4 py-3 border font-weight-semibold text-color-dark text-3">
             Edit
+        </a>
+    </div>
+    <div class="col-12 col-md-auto px-md-0 mt-3 mx-1 mt-md-0">
+        <a asp-action="Index" asp-route-id="@Model.Id" class="cancel-button btn btn-light btn-px-4 py-3 border font-weight-semibold text-color-dark text-3">
+            Back to List
         </a>
     </div>
     <div class="col-12 col-md-auto ms-md-auto mt-3 mt-md-0 ms-auto">

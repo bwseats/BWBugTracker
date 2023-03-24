@@ -57,6 +57,7 @@ namespace BWBugTracker.Services
             try
             {
                 Project? project = await _context.Projects
+                                                 .Where(p => p.CompanyId == companyId)
                                                  .Include(p => p.Company)
                                                  .Include(p => p.Members)
                                                  .Include(p => p.ProjectPriority)
@@ -64,7 +65,7 @@ namespace BWBugTracker.Services
                                                      .ThenInclude(t => t.DeveloperUser)
                                                  .Include(p => p.Tickets)
                                                      .ThenInclude(t => t.SubmitterUser)
-                                                 .FirstOrDefaultAsync(p => p.CompanyId == companyId);
+                                                 .FirstOrDefaultAsync(p => p.Id == projectId);
 
                 return project!;
             }

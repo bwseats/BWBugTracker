@@ -93,7 +93,7 @@ namespace BWBugTracker.Controllers
         {
             int companyId = User.Identity!.GetCompanyId();
 
-            ViewData["ProjectId"] = new SelectList(await _projectService.GetAllProjectsByCompanyIdAsync(companyId), "Id", "Description");
+            ViewData["ProjectId"] = new SelectList(await _projectService.GetAllProjectsByCompanyIdAsync(companyId), "Id", "Name");
 
             return View();
         }

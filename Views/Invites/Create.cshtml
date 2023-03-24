@@ -3,6 +3,13 @@
 @{
     ViewData["Title"] = "Create";
 }
+
+<style>
+    .ck-editor__editable_inline {
+        min-height: 200px;
+    }
+</style>
+
 <div class="page-header">
     <h2>Invite New User</h2>
 </div>
@@ -10,7 +17,6 @@
     <div class="card custom-card">
         <div class="card-body">
             <div>
-                <h6 class="main-content-label mb-1">Company Invite</h6>
                 <p class="text-muted card-sub-title">Invite a new user to join your Bug Tracker company.</p>
             </div>
             <form asp-action="Create" method="post">
@@ -24,7 +30,7 @@
                 </div>
                 <div class="row row-xs align-items-center my-3">
                     <div class="col-md-4">
-                        <label class="mg-b-0">Firstname</label>
+                        <label class="mg-b-0">First Name</label>
                     </div>
                     <div class="col-md-8 mg-t-5 mg-md-t-0">
                         <input type="text" asp-for="InviteeFirstName" class="form-control" placeholder="Enter first name">
@@ -32,7 +38,7 @@
                 </div>
                 <div class="row row-xs align-items-center my-3">
                     <div class="col-md-4">
-                        <label class="mg-b-0">Lastname</label>
+                        <label class="mg-b-0">Last Name</label>
                     </div>
                     <div class="col-md-8 mg-t-5 mg-md-t-0">
                         <input type="text" asp-for="InviteeLastName" class="form-control" placeholder="Enter last name">
@@ -53,7 +59,7 @@
                         <label class="mg-b-0">Message</label>
                     </div>
                     <div class="col-md-8 mg-t-5 mg-md-t-0">
-                        <textarea asp-for="Message" multiple="multiple" class="form-control"></textarea>
+                        <textarea asp-for="Message" multiple="multiple" class="editor form-control"></textarea>
                     </div>
                 </div>
                 <div class="form-group row justify-content-end mb-0">
@@ -67,9 +73,25 @@
     </div>
 </div>
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" class="btn btn-light btn-sm mt-3">Back to List</a>
 </div>
 @section Scripts {
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('.editor'), {
+                licenseKey: '',
+            })
+            .then(editor => {
+                window.editor = editor;
+            })
+            .catch(error => {
+                console.error('Oops, something went wrong!');
+                console.error('Please, report the following error on https://github.com/ckeditor/ckeditor5/issues with the build id and the error stack trace:');
+                console.warn('Build id: xx09iayzufkn-lkt434h3lx2z');
+                console.error(error);
+            });
+    </script>
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }

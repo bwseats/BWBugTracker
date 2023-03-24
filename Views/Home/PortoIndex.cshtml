@@ -194,17 +194,33 @@
 				<div class="timeline timeline-simple mt-3 mb-3">
 					<div class="tm-body">
 						<ol class="tm-items">
-							@foreach (Project project in btUser.Projects)
+							@if (!User.IsInRole("Admin"))
 							{
-								<li>
-									<div class="tm-box">
-										<p class="text-muted mb-0">@project.Created</p>
-										<p>
-											<h4>@project.Name<span class="text-primary"></span></h4>
-											@project.Description<span class="text-primary"></span>
-										</p>
-									</div>
-								</li>
+								@foreach (Project project in btUser.Projects)
+								{
+									<li>
+                                        <a asp-controller="Projects" asp-action="PortoDetails" asp-route-id="@project.Id">
+											<div class="tm-box">
+												<h4 class="text-dark">@project.Name</h4>
+												<p class="text-gray">@project.Description</p>
+											</div>
+										</a>
+									</li>
+								}
+							}
+							@if (User.IsInRole("Admin"))
+							{
+								@foreach (Project project in Model.Projects)
+								{
+									<li>
+										<a asp-controller="Projects" asp-action="PortoDetails" asp-route-id="@project.Id">
+											<div class="tm-box">
+												<h4 class="text-dark">@project.Name</h4>
+												<p class="text-gray">@project.Description</p>
+											</div>
+										</a>
+									</li>
+								}
 							}
 						</ol>
 					</div>

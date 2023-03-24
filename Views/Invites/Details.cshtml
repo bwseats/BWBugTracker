@@ -1,90 +1,57 @@
 ﻿@model BWBugTracker.Models.Invite
 
-@{
-    ViewData["Title"] = "Details";
-}
+@using Microsoft.AspNetCore.Identity
+@using BWBugTracker.Services.Interfaces
+@using BWBugTracker.Models.Enums
 
-<h1>Details</h1>
+@inject UserManager<BTUser> UserManager
+@inject IBTRolesService _rolesService
+@inject IBTTicketService _btProjectService
+@inject IBTFileService _btFileService
 
-<div>
-    <h4>Invite</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.InviteDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.InviteDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.JoinDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.JoinDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CompanyToken)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CompanyToken)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.InviteeEmail)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.InviteeEmail)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.InviteeFirstName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.InviteeFirstName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.InviteeLastName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.InviteeLastName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Message)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Message)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsValid)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsValid)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Company)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Company.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Project)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Project.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Invitor)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Invitor.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Invitee)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Invitee.Id)
-        </dd>
-    </dl>
+<div class="page-header">
+    <h2>Invite Details</h2>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<div class="row mb-4">
+    <div class="col-12 col-md-6 mb-4">
+        <div class="card card-modern">
+            <div class="card-header">
+                <h1 class="card-title">@(Model.InviteeFirstName + " " + Model.InviteeLastName)</h1>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group col mb-2">
+                        <h4>Invitee Email</h4>
+                        <p>@Model.InviteeEmail</p>
+                    </div>
+                    <div class="form-group col mb-2">
+                        <h4>Invite Date</h4>
+                        <p>@Model.InviteDate</p>
+                    </div>
+                    <div class="form-group col mb-2">
+                        <h4>Join Date</h4>
+                        <p>@Model.JoinDate</p>
+                    </div>
+                    <div class="form-group col mb-2">
+                        <h4>Invitor</h4>
+                        <p>@Model.Invitor.FullName</p>
+                    </div>
+                    <div class="row action-buttons">
+                        <div class="col-12 col-md-auto px-md-0 mt-3 mt-md-0 ms-3">
+                            <a asp-action="PortoIndex" class="btn btn-primary">
+                                Back to List
+                            </a>
+                        </div>
+                        <div class="col-12 col-md-auto px-md-0 mt-3 mt-md-0 ms-3">
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="delete-button btn btn-danger">
+                                <i class="bx bx-trash text-4 me-2"></i>
+                                Cancel Invite
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

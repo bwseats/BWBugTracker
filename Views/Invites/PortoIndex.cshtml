@@ -38,8 +38,8 @@
                             {
                                 <tr>
                                     <td>@(invite.InviteeFirstName + " " + invite.InviteeLastName)</td>
-                                    <td>@invite.InviteDate</td>
-                                    <td>@invite.JoinDate</td>
+                                    <td>@Html.DisplayFor(modelItem => invite.InviteDate)</td>
+                                    <td>@Html.DisplayFor(modelItem => invite.JoinDate)</td>
                                     <td>@invite.Invitor.FullName</td>
                                     <td class="d-flex" style="justify-content:space-evenly">
                                         <a asp-action="Details" asp-route-id="@invite.Id" class="btn btn-primary">Details</a>
@@ -74,6 +74,16 @@
     <script>
         $(document).ready(function () {
             let dataTable = $('#invitesTable').DataTable();
+
+            $('.dataTables_filter input')
+                .attr('placeholder', 'Search...')
+                .addClass('form-control rounded-pill me-5 pe-5')
+
+            $('.dataTables_length select')
+                .addClass('pe-3')
+
+            $('.paginate_button')
+                .addClass('btn btn-primary')
         });
 
     </script>

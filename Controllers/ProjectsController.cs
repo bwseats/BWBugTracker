@@ -74,7 +74,7 @@ namespace BWBugTracker.Controllers
             {
                 await _projectService.AddProjectManagerAsync(viewModel.PMId, viewModel.Project?.Id);
 
-                return RedirectToAction("Details", new { id = viewModel.Project?.Id });
+                return RedirectToAction("PortoDetails", new { id = viewModel.Project?.Id });
             }
 
             ModelState.AddModelError("PMId", "No project manager was found for this project. Please select a new project manager.");

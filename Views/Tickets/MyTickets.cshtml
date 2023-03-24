@@ -4,34 +4,14 @@
 
 @inject IBTFileService _BTFileService
 
-<!-- Web Fonts  -->
-<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
+<link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 
-<!-- Vendor CSS -->
-<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="vendor/animate/animate.compat.css">
-<link rel="stylesheet" href="vendor/font-awesome/css/all.min.css" />
-<link rel="stylesheet" href="vendor/boxicons/css/boxicons.min.css" />
-<link rel="stylesheet" href="vendor/magnific-popup/magnific-popup.css" />
-<link rel="stylesheet" href="vendor/bootstrap-datepicker/css/bootstrap-datepicker3.css" />
-<link rel="stylesheet" href="vendor/select2/css/select2.css" />
-<link rel="stylesheet" href="vendor/select2-bootstrap-theme/select2-bootstrap.min.css" />
-<link rel="stylesheet" href="vendor/datatables/media/css/dataTables.bootstrap5.css" />
-
-<!-- Theme CSS -->
-<link rel="stylesheet" href="css/theme.css" />
-
-<!-- Skin CSS -->
-<link rel="stylesheet" href="css/skins/default.css" />
-
-<!-- Theme Custom CSS -->
-<link rel="stylesheet" href="css/custom.css">
-
-<!-- Head Libs -->
-<script src="vendor/modernizr/modernizr.js"></script>
+@{
+    ViewData["Title"] = "My Tickets";
+}
 
 <div class="page-header">
-    <h2>Tickets</h2>
+    <h2>My Tickets</h2>
 </div>
 
 <div class="row">
@@ -43,47 +23,39 @@
                     <div class="datatable-header">
                         <div class="row align-items-center mb-3">
                             <div class="col-12 col-lg-auto mb-3 mb-lg-0">
-                                <a asp-action="Create" class="btn btn-primary btn-md font-weight-semibold btn-py-2 px-4">+ Create Ticket</a>
+                                <a asp-action="Create" class="btn btn-primary btn-md font-weight-semibold btn-py-2 px-4">+ Create Project</a>
                             </div>
                         </div>
                     </div>
-
-                    <table id="ticketsTable" class="table table-ecommerce-simple table-borderless table-striped mb-2" style="min-width: 640px;">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>Project</th>
-                                <th>Created Date</th>
-                                <th>Options</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (Ticket ticket in Model)
-                            {
+                    <div class="table-responsive">
+                        <table id="ticketsTable" class="table table-ecommerce-simple table-borderless dt-responsive table-striped mb-0" style="min-width: 640px;">
+                            <thead>
                                 <tr>
-                                    <td>@ticket.Title</td>
-                                    <td>@ticket.Description</td>
-                                    <td>@ticket.Project.Name</td>
-                                    <td>@ticket.Created</td>
-                                    <td class="d-flex" style="justify-content:space-evenly">
-                                        <a asp-action="PortoDetails" asp-route-id="@ticket.Id" class="btn btn-primary">Details</a>
-                                        <a asp-action="PortoEdit" asp-route-id="@ticket.Id" class="btn btn-primary">Edit</a>
-                                        <a asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-primary">Delete</a>
-                                    </td>
+                                    <th>Title</th>
+                                    <th>Project</th>
+                                    <th>Created Date</th>
+                                    <th>Options</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-                    <div class="datatable-footer">
-                        <div class="row align-items-center justify-content-between mt-3">
-                            <div class="col-lg-auto text-center order-3 order-lg-2">
-                                <div class="results-info-wrapper"></div>
-                            </div>
-                            <div class="col-lg-auto order-2 order-lg-3 mb-3 mb-lg-0">
-                                <div class="pagination-wrapper"></div>
-                            </div>
-                        </div>
+                            </thead>
+                            <tbody>
+                                @foreach (Ticket ticket in Model)
+                                {
+                                    <tr>
+                                        <td><a asp-controller="Tickets" asp-action="PortoDetails" asp-route-id="@ticket.Id"><strong>@Html.DisplayFor(modelItem => ticket.Title)</strong></a></td>
+                                        <td>@ticket.Project.Name</td>
+                                        <td>@Html.DisplayFor(modelItem => ticket.Created)</td>
+                                        @if (User.IsInRole("ProjectManager") || User.IsInRole("Admin"))
+                                        {
+                                            <td class="d-flex justify-content-stretch">
+                                                <a asp-action="PortoDetails" asp-route-id="@ticket.Id" class="btn btn-primary mx-1">Details</a>
+                                                <a asp-action="PortoEdit" asp-route-id="@ticket.Id" class="btn btn-primary mx-1">Edit</a>
+                                                <a asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-primary mx-1">Delete</a>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -93,56 +65,23 @@
 
 @section Scripts
     {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
     <script>
         $(document).ready(function () {
             let dataTable = $('#ticketsTable').DataTable();
 
             $('.dataTables_filter input')
-            .attr('placeholder', 'Search...')
-            .addClass('form-control rounded-pill');
+                .attr('placeholder', 'Search...')
+                .addClass('form-control rounded-pill me-5 pe-5')
 
-            $('a.paginate_button')
-            .addClass('btn btn-primary m-1');
+            $('.dataTables_length select')
+                .addClass('pe-3')
+
+            $('.paginate_button')
+                .addClass('btn btn-primary')
         });
 
     </script>
-
-    <!-- Vendor -->
-    <script src="vendor/jquery/jquery.js"></script>
-    <script src="vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
-    <script src="vendor/popper/umd/popper.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-    <script src="vendor/common/common.js"></script>
-    <script src="vendor/nanoscroller/nanoscroller.js"></script>
-    <script src="vendor/magnific-popup/jquery.magnific-popup.js"></script>
-    <script src="vendor/jquery-placeholder/jquery.placeholder.js"></script>
-
-    <!-- Specific Page Vendor -->
-    <script src="vendor/select2/js/select2.js"></script>
-    <script src="vendor/datatables/media/js/jquery.dataTables.min.js"></script>
-    <script src="vendor/datatables/media/js/dataTables.bootstrap5.min.js"></script>
-    <script src="vendor/datatables/extras/TableTools/Buttons-1.4.2/js/dataTables.buttons.min.js"></script>
-    <script src="vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.bootstrap4.min.js"></script>
-    <script src="vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.html5.min.js"></script>
-    <script src="vendor/datatables/extras/TableTools/Buttons-1.4.2/js/buttons.print.min.js"></script>
-    <script src="vendor/datatables/extras/TableTools/JSZip-2.5.0/jszip.min.js"></script>
-    <script src="vendor/datatables/extras/TableTools/pdfmake-0.1.32/pdfmake.min.js"></script>
-    <script src="vendor/datatables/extras/TableTools/pdfmake-0.1.32/vfs_fonts.js"></script>
-
-    <!-- Theme Base, Components and Settings -->
-    <script src="js/theme.js"></script>
-
-    <!-- Theme Custom -->
-    <script src="js/custom.js"></script>
-
-    <!-- Theme Initialization Files -->
-    <script src="js/theme.init.js"></script>
-
-    <!-- Examples -->
-    <script src="js/examples/examples.datatables.default.js"></script>
-    <script src="js/examples/examples.datatables.row.with.details.js"></script>
-    <script src="js/examples/examples.datatables.tabletools.js"></script>
 
     }
