@@ -106,23 +106,23 @@ namespace BWBugTracker.Controllers
 			return View(ticket);
 		}
 
-        // GET: Tickets/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Tickets == null)
-            {
-                return NotFound();
-            }
+   //     // GET: Tickets/Details/5
+   //     public async Task<IActionResult> Details(int? id)
+   //     {
+   //         if (id == null || _context.Tickets == null)
+   //         {
+   //             return NotFound();
+   //         }
 
-			Ticket ticket = await _btTicketService.GetTicketAsync(id);
+			//Ticket ticket = await _btTicketService.GetTicketAsync(id);
 
-			if (ticket == null)
-            {
-                return NotFound();
-            }
+			//if (ticket == null)
+   //         {
+   //             return NotFound();
+   //         }
 
-            return View(ticket);
-        }
+   //         return View(ticket);
+   //     }
 
         // GET: Tickets/Create
         public async Task<IActionResult> Create()
@@ -318,12 +318,14 @@ namespace BWBugTracker.Controllers
         // GET: Tickets/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            int companyId = User.Identity!.GetCompanyId();
+
             if (id == null || _context.Tickets == null)
             {
                 return NotFound();
             }
 
-			Ticket ticket = await _btTicketService.GetTicketAsync(id);
+			Ticket ticket = await _btTicketService.GetTicketAsync(id, companyId);
 
 			if (ticket == null)
             {
@@ -338,12 +340,14 @@ namespace BWBugTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            int companyId = User.Identity!.GetCompanyId();
+
             if (_context.Tickets == null)
             {
                 return Problem("Entity set 'ApplicationDbContext.Tickets'  is null.");
             }
 
-			Ticket ticket = await _btTicketService.GetTicketAsync(id);
+			Ticket ticket = await _btTicketService.GetTicketAsync(id, companyId);
 
 			if (ticket != null)
             {
@@ -467,9 +471,10 @@ namespace BWBugTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignTicketDeveloper(AssignDeveloperViewModel model)
         {
-            Ticket? ticket = await _btTicketService.GetTicketAsync(model.Ticket?.Id);
-
             int companyId = User.Identity!.GetCompanyId();
+
+            Ticket? ticket = await _btTicketService.GetTicketAsync(model.Ticket?.Id, companyId);
+
             
             string? userId = _userManager.GetUserId(User);
 

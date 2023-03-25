@@ -109,10 +109,13 @@
             Back to List
         </a>
     </div>
-    <div class="col-12 col-md-auto ms-md-auto mt-3 mt-md-0 ms-auto">
-        <a asp-action="Delete" asp-route-id="@Model.Id" class="delete-button btn btn-danger btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1">
-            <i class="bx bx-trash text-4 me-2"></i>
-            Delete Project
-        </a>
-    </div>
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="col-12 col-md-auto ms-md-auto mt-3 mt-md-0 ms-auto">
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="delete-button btn btn-danger btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1">
+                <i class="bx bx-trash text-4 me-2"></i>
+                Archive Project
+            </a>
+        </div>
+    }
 </div>
